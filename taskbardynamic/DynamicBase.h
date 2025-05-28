@@ -15,12 +15,12 @@ public:
 
 private:
 	// 大小为4的动态数组
-	// 分别为 1h 30min 5min curr
+	// 分别为 10min 5min 2min curr
 	int size_;
 	std::vector<std::pair<T, SYSTEMTIME>> min_;
 	std::vector<std::pair<T, SYSTEMTIME>> max_;
 	int deprecated_time_[4] = { 10 , 5 , 2, 1 };
-	T value_;
+	T value_{0};
 
 	bool SetDeprecated(int index, const SYSTEMTIME& time);
 	bool SetRightValue(int index);

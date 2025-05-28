@@ -19,9 +19,9 @@ namespace config {
 		std::wstring unit;
 
 		if (value < 1024 * 1000) { // 使用 KB/s 作为单位
-			int integerPart = value / 1024;
-			int remainder = value % 1024;
-			int fractionalPart = (remainder * 100) / 1024; // 计算小数点后两位
+			unsigned long long integerPart = value / 1024;
+			unsigned long long remainder = value % 1024;
+			unsigned long long fractionalPart = (remainder * 100) / 1024; // 计算小数点后两位
 
 			unit = L"KB/s";
 
@@ -39,9 +39,9 @@ namespace config {
 					s += L"0";
 		}
 		else {
-			int integerPart = value / (1024 * 1024);
-			int remainder = value % (1024 * 1024);
-			int fractionalPart = (remainder * 100) / (1024 * 1024); // 计算小数点后两位
+			unsigned long long integerPart = value / (1024 * 1024);
+			unsigned long long remainder = value % (1024 * 1024);
+			unsigned long long fractionalPart = (remainder * 100) / (1024 * 1024); // 计算小数点后两位
 
 			unit = L"MB/s";
 

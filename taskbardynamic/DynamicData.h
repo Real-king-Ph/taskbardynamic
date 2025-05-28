@@ -14,7 +14,7 @@ struct DynamicInfo {
 	std::wstring lable_;
 	std::wstring value_sample_;
 
-	int draw_graph_;
+	int draw_graph_{0};
 
 	std::function<T(const ITMPlugin::MonitorInfo&)> get_data_;
 	std::function<void(std::wstring& text, T value)> set_data_;
