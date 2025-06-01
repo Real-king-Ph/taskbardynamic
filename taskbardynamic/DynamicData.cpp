@@ -51,6 +51,30 @@ void DynamicData<T>::GenerateData(const SYSTEMTIME& time) {
 	info_.set_data_(value_text_, data_.GetValue());
 }
 
+template<typename T>
+void* DynamicData<T>::OnItemInfo(ItemInfoType info, void* para1, void* para2) {
+	switch (info)
+	{
+	case IPluginItem::GET_ITEM_DATA:
+		if (para1 != nullptr)
+		{
+			ITMPlugin::MonitorInfo* monitor_info = static_cast<ITMPlugin::MonitorInfo*>(para1);
+			SetData(*monitor_info);
+		}
+		break;
+	case IPluginItem::SET_ITEM_DATA:
+		if (para1 != nullptr)
+		{
+			SYSTEMTIME* time = static_cast<SYSTEMTIME*>(para1);
+			GenerateData(*time);
+		}
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
 template class DynamicData<int>;
 template class DynamicData<unsigned long long>;
 template class DynamicData<float>;

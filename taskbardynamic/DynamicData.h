@@ -38,6 +38,8 @@ public:
 	virtual const wchar_t* GetItemValueText() const override;
 	virtual float GetResourceUsageGraphValue() const override;
 
+	virtual void* OnItemInfo(ItemInfoType, void* para1, void* para2);
+
 	// …Ë÷√ ˝æ›
 	void SetData(const ITMPlugin::MonitorInfo& monitor_info);
 	void GenerateData(const SYSTEMTIME& time);

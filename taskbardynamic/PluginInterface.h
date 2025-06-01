@@ -133,7 +133,8 @@ public:
 
 	enum ItemInfoType
 	{
-
+		GET_ITEM_DATA,
+		SET_ITEM_DATA,
 	};
 	//Ô¤ÁôµÄ½Ó¿Ú
 	virtual void* OnItemInfo(ItemInfoType, void* para1, void* para2) { return 0; }

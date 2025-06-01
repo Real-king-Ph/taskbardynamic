@@ -2,6 +2,7 @@
 #include "PluginInterface.h"
 #include "DynamicData.h"
 #include <vector>
+#include <memory>
 
 // ио╢╚/обть
 
@@ -19,9 +20,7 @@ public:
 private:
 	DynamicWindow();
 
-	DynamicData<unsigned long long> upload_speed_;
-	DynamicData<unsigned long long> download_speed_;
-	DynamicData<int>cpu_temperature_;
+	std::vector<std::unique_ptr<IPluginItem>> items_;
 };
 
 #ifdef __cplusplus
