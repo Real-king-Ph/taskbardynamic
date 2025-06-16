@@ -73,11 +73,11 @@ bool DynamicBase<T>::SetRightValue(int index) {
 	auto [shoter_min, shoter_min_time] = min_[index + 1];
 	auto [shoter_max, shoter_max_time] = max_[index + 1];
 
-	if (min_[index].first > shoter_min || max_[index].first < shoter_max) {
+	if (min_[index].first > shoter_min) {
 		min_[index] = { shoter_min, shoter_min_time };
 		f = true;
 	}
-	if (max_[index].first < shoter_max || min_[index].first > shoter_min) {
+	if (max_[index].first < shoter_max) {
 		max_[index] = { shoter_max, shoter_max_time };
 		f = true;
 	}
