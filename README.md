@@ -73,10 +73,10 @@ msbuild taskbardynamic.sln /p:Configuration=Release /p:Platform=x64
 ### 产物
 
 ```
-x64\Release\taskbardynamic.dll     # Release + x64
-x64\Debug\taskbardynamic.dll       # Debug   + x64
-Release\taskbardynamic.dll         # Release + Win32(x86)
-Debug\taskbardynamic.dll           # Debug   + Win32(x86)
+x64\Release\taskbardynamic-x64.dll   # Release + x64
+x64\Debug\taskbardynamic-x64.dll     # Debug   + x64
+Release\taskbardynamic-x86.dll       # Release + Win32(x86)
+Debug\taskbardynamic-x86.dll         # Debug   + Win32(x86)
 ```
 
 生成的 DLL 只导出一个符号：
@@ -95,12 +95,14 @@ TMPluginGetInstance
 
 ## 安装与使用
 
-1. 把 `taskbardynamic.dll` 复制到 TrafficMonitor 的 `plugins` 目录（与主程序 `TrafficMonitor.exe` 同级）；
+1. 把与主程序**位数一致**的 DLL（`taskbardynamic-x64.dll` 或 `taskbardynamic-x86.dll`）复制到 TrafficMonitor 的 `plugins` 目录（与主程序 `TrafficMonitor.exe` 同级）；
 2. 重启 TrafficMonitor；
 3. 打开 **选项 → 任务栏窗口设置 / 显示设置**，勾选需要的显示项；
 4. 若需要在任务栏上看到图形，请确保勾选了该显示项对应的“显示资源占用图”类选项。
 
 卸载时删除 DLL 并在主程序中取消勾选即可。
+
+> **升级提示**：从旧版本（旧文件名 `taskbardynamic.dll`）升级时，请先删除 `plugins` 目录里旧的那个 DLL，再放入新文件，否则新旧两个 DLL 会同时被加载，任务栏/悬浮窗上的显示项会重复出现。
 
 ---
 
@@ -334,6 +336,7 @@ taskbardynamic/
 - 字符集 `Unicode`，配置类型 `DynamicLibrary`；
 - 四种配置（Debug/Release × x64/Win32）统一使用 **C++17**；
 - 开启 **多处理器编译**（`/MP`）与一致性模式（`/permissive-`）；
+- 编译产物按目标平台命名（`TargetName`）：x64 输出 `taskbardynamic-x64.dll`，Win32 输出 `taskbardynamic-x86.dll`；
 - 源码为 **UTF-8 with BOM**；上游文件 `PluginInterface.h` 保持原始 GBK 编码，只含注释，不影响编译。
 
 ---
@@ -383,7 +386,8 @@ taskbardynamic/
 - `GetInfo(TMI_MAX)` 不再返回无意义的 `L"3"`，描述文字与名称不再重复，版本号更新为 `v1.1`；
 - 移除编译警告 C4244；
 - 工程配置：为 x86 配置补齐 C++17 标准，统一开启 `/MP` 多处理器编译；
-- 源码统一为 UTF-8 with BOM。
+- 源码统一为 UTF-8 with BOM；
+- 编译产物按位数命名：`taskbardynamic-x64.dll` / `taskbardynamic-x86.dll`（升级时请先删除 `plugins` 目录里旧版的 `taskbardynamic.dll`，避免重复加载）。
 
 ### v1.0
 
