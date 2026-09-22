@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "DynamicData.h"
 
 template<typename T>
@@ -41,38 +41,41 @@ float DynamicData<T>::GetResourceUsageGraphValue() const {
 
 template<typename T>
 void DynamicData<T>::SetData(const ITMPlugin::MonitorInfo& monitor_info) {
-	T value = info_.get_data_(monitor_info);
-	data_.SetValue(value);
+	if (!info_.get_data_) {
+		return;  // 未配置回调时保持上一次的数值
+	}
+	data_.SetValue(info_.get_data_(monitor_info));
 }
 
 template<typename T>
 void DynamicData<T>::GenerateData(const SYSTEMTIME& time) {
 	data_.PutInValue(time);
-	info_.set_data_(value_text_, data_.GetValue());
+
+	if (info_.set_data_) {
+		info_.set_data_(value_text_, data_.GetValue());
+	}
 }
 
 template<typename T>
-void* DynamicData<T>::OnItemInfo(ItemInfoType info, void* para1, void* para2) {
+void* DynamicData<T>::OnItemInfo(ItemInfoType info, void* para1, void* /*para2*/) {
 	switch (info)
 	{
 	case IPluginItem::GET_ITEM_DATA:
 		if (para1 != nullptr)
 		{
-			ITMPlugin::MonitorInfo* monitor_info = static_cast<ITMPlugin::MonitorInfo*>(para1);
-			SetData(*monitor_info);
+			SetData(*static_cast<const ITMPlugin::MonitorInfo*>(para1));
 		}
 		break;
 	case IPluginItem::SET_ITEM_DATA:
 		if (para1 != nullptr)
 		{
-			SYSTEMTIME* time = static_cast<SYSTEMTIME*>(para1);
-			GenerateData(*time);
+			GenerateData(*static_cast<const SYSTEMTIME*>(para1));
 		}
 		break;
 	default:
 		break;
 	}
-	return 0;
+	return nullptr;
 }
 
 template class DynamicData<int>;

@@ -1,7 +1,32 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "config.h"
 
+#include <cstdio>
+
 namespace config {
+	namespace {
+		constexpr double kKilo = 1024.0;
+		constexpr double kMega = kKilo * 1024.0;
+		constexpr double kGiga = kMega * 1024.0;
+
+		/// æŠŠæ•°å€¼éƒ¨åˆ†ç»Ÿä¸€æ ¼å¼åŒ–æˆ 4 ä¸ªå­—ç¬¦ï¼š999 / 99.9 / 9.99
+		std::wstring FormatValue(double value) {
+			wchar_t buffer[32]{};
+
+			if (value >= 100.0) {
+				swprintf_s(buffer, L"%.0f", value);
+			}
+			else if (value >= 10.0) {
+				swprintf_s(buffer, L"%.1f", value);
+			}
+			else {
+				swprintf_s(buffer, L"%.2f", value);
+			}
+
+			return buffer;
+		}
+	}
+
 	// get_data_
 	unsigned long long GetUpSpeed(const ITMPlugin::MonitorInfo& monitor_info) {
 		return monitor_info.up_speed;
@@ -15,61 +40,37 @@ namespace config {
 
 	// set_data_
 	void SetNetSpeed(std::wstring& text, unsigned long long value) {
-		std::wstring s;
-		std::wstring unit;
+		const double bytes = static_cast<double>(value);
 
-		if (value < 1ull * 1024 * 1000) { // Ê¹ÓÃ KB/s ×÷Îªµ¥Î»
-			unsigned long long integerPart = value / 1024;
-			unsigned long long remainder = value % 1024;
-			unsigned long long fractionalPart = (remainder * 100) / 1024; // ¼ÆËãĞ¡ÊıµãºóÁ½Î»
+		// æŒ‰æ•°é‡çº§è‡ªåŠ¨é€‰æ‹©å•ä½ï¼Œé¿å…å¤§æµé‡æ—¶æ•°å€¼éƒ¨åˆ†è¢«æˆªæ–­æˆæ— æ„ä¹‰çš„å­—ç¬¦ä¸²
+		double scaled = bytes;
+		const wchar_t* unit = L"B/s";
 
-			unit = L"KB/s";
-
-			// ¸ñÊ½»¯Êä³öÎª¹Ì¶¨¿í¶È4
-			s = std::to_wstring(integerPart) + L".";
-			if (fractionalPart < 10)
-				s += L"0"; // È·±£Á½Î»Ğ¡Êı
-			s += std::to_wstring(fractionalPart);
-
-			// ½Ø¶Ï»ò²¹Áãµ½4¸ö×Ö·û
-			if (s.length() > 4)
-				s = s.substr(0, 4);
-			else
-				while (s.length() < 4)
-					s += L"0";
+		if (bytes >= kGiga) {
+			scaled = bytes / kGiga;
+			unit = L"GB/s";
 		}
-		else {
-			unsigned long long integerPart = value / (1ull * 1024 * 1000);
-			unsigned long long remainder = value % (1ull * 1024 * 1000);
-			unsigned long long fractionalPart = (remainder * 100) / (1ull * 1024 * 1000); // ¼ÆËãĞ¡ÊıµãºóÁ½Î»
-
+		else if (bytes >= kMega) {
+			scaled = bytes / kMega;
 			unit = L"MB/s";
-
-			// ¸ñÊ½»¯Êä³öÎª¹Ì¶¨¿í¶È4
-			s = std::to_wstring(integerPart) + L".";
-			if (fractionalPart < 10)
-				s += L"0"; // È·±£Á½Î»Ğ¡Êı
-			s += std::to_wstring(fractionalPart);
-
-			// ½Ø¶Ï»ò²¹Áãµ½4¸ö×Ö·û
-			if (s.length() > 4)
-				s = s.substr(0, 4);
-			else
-				while (s.length() < 4)
-					s += L"0";
+		}
+		else if (bytes >= kKilo) {
+			scaled = bytes / kKilo;
+			unit = L"KB/s";
 		}
 
-		text = s + unit;
+		text = FormatValue(scaled) + unit;
 	}
-	void SetCpuTemperatrue(std::wstring& text, int value) {
-		text = std::to_wstring(value) + L"¡ãC";
+
+	void SetCpuTemperature(std::wstring& text, int value) {
+		text = std::to_wstring(value) + L"Â°C";
 	}
 
 	// config
 	DynamicInfo<unsigned long long> upload_info_ = {
 		L"upload speed",
-		L"mq72ZrBHN2", // Ëæ»ú×Ö·û´®                
-		L"¡ü:",
+		L"mq72ZrBHN2",  // æ˜¾ç¤ºé¡¹ IDï¼Œä¿®æ”¹åä¸»ç¨‹åºä¼šè®¤ä¸ºæ˜¯æ–°çš„æ˜¾ç¤ºé¡¹
+		L"â†‘:",
 		L"12.1MB/s",
 		1,
 		GetUpSpeed,
@@ -79,7 +80,7 @@ namespace config {
 	DynamicInfo<unsigned long long> download_info_ = {
 		L"download speed",
 		L"DE7etVv1nR",
-		L"¡ı:",
+		L"â†“:",
 		L"12.1MB/s",
 		1,
 		GetDownSpeed,
@@ -90,9 +91,9 @@ namespace config {
 		L"cpu temperature",
 		L"ST5sLiDY3f",
 		L"CPU:",
-		L"17¡ãC",
+		L"17Â°C",
 		1,
 		GetCpuTemperature,
-		SetCpuTemperatrue
+		SetCpuTemperature
 	};
 };
