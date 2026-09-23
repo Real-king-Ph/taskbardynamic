@@ -2,7 +2,7 @@
 
 TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示在任务栏上，并用时间窗口内的历史极值**自适应绘制资源占用图**。
 
-- 显示项由配置表驱动，新增一个监控项只需要改 `config.cpp` 加一行代码。
+- 显示项由配置表驱动，新增一个监控项只需在 `config.h` / `config.cpp` 里补上取数与格式化回调，再注册一行。
 - 绘图比例不是固定的，而是按最近 10 分钟窗口内的 `[最小值, 最大值]` 动态归一化，因此低速和高速场景下图形都有明显的起伏。
 - 纯 C++17 实现，无第三方依赖，编译产物只有一个 DLL。
 
@@ -15,6 +15,7 @@ TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示
 - [编译](#编译)
 - [安装与使用](#安装与使用)
 - [显示项](#显示项)
+- [PrimoCache 集成（可选）](#primocache-集成可选)
 - [工作原理](#工作原理)
   - [分层结构](#分层结构)
   - [运行时数据流](#运行时数据流)
@@ -36,11 +37,11 @@ TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示
 | 上传速度 | 任务栏显示 `↑: 12.1MB/s` |
 | 下载速度 | 任务栏显示 `↓: 12.1MB/s` |
 | CPU 温度 | 任务栏显示 `CPU: 45°C` |
-| 资源占用图 | 三个显示项都会绘制图形，取值按 10 分钟窗口的历史极值归一化 |
-| 自动单位 | 数值部分固定 4 个字符，单位在 `B/s`、`KB/s`、`MB/s`、`GB/s` 之间自动切换 |
+| 资源占用图 | 所有显示项都会绘制图形，取值按 10 分钟窗口的历史极值归一化 |
+| 自动单位 | 数值部分统一为 4 个字符（舍入边界可能出现 5 个），单位在 `B/s`、`KB/s`、`MB/s`、`GB/s` 之间自动切换 |
 | 声明式配置 | 显示项的名称、ID、标签、示例文本、取数回调、格式化回调全部集中在一张表里 |
 | PrimoCache 命中 / 未命中速度 | `命中: 11.8MB/s`、`未中: 345KB/s` |
-| PrimoCache 实时命中率 | `命中率: 99.7%`（最近 5 秒区间） |
+| PrimoCache 实时命中率 | `命中率: 99.9%`（最近 30 秒滚动窗口） |
 
 ---
 
@@ -70,15 +71,15 @@ TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示
 msbuild taskbardynamic.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-可用的平台参数为 `x64` 和 `Win32`（解决方案中 `Win32` 对应工程里的 `x86` 配置）。
+可用的平台参数为 `x64` 和 `x86`（解决方案里的 `x86` 对应工程文件中的 `Win32` 配置）。
 
 ### 产物
 
 ```
 x64\Release\taskbardynamic-x64.dll   # Release + x64
 x64\Debug\taskbardynamic-x64.dll     # Debug   + x64
-Release\taskbardynamic-x86.dll       # Release + Win32(x86)
-Debug\taskbardynamic-x86.dll         # Debug   + Win32(x86)
+Release\taskbardynamic-x86.dll       # Release + x86
+Debug\taskbardynamic-x86.dll         # Debug   + x86
 ```
 
 生成的 DLL 只导出一个符号：
@@ -117,7 +118,7 @@ TMPluginGetInstance
 | cpu temperature | `ST5sLiDY3f` | `CPU:` | `17°C` | `MonitorInfo::cpu_temperature` | 是 |
 | primocache hit read speed | `PC_HIT_SPD` | `命中:` | `12.1MB/s` | `rxpcc perf`：Cached Read 增量 | 是 |
 | primocache miss read speed | `PC_MISS_SPD` | `未中:` | `345KB/s` | 总读取 − 命中 | 是 |
-| primocache hit rate | `PC_HIT_RATE` | `命中率:` | `99.7%` | 命中 / 总读取 | 是 |
+| primocache hit rate | `PC_HIT_RATE` | `命中率:` | `99.9%` | 命中 / 总读取 | 是 |
 
 > **注意**：`ID` 是主程序识别显示项的键。修改 ID 等同于新增一个显示项，用户原有的勾选状态、颜色等设置会失效，因此不要随意改动。
 
@@ -131,7 +132,7 @@ TMPluginGetInstance
 后台线程每 5 秒执行一次   rxpcc perf -a -u=b -s
         ↓  解析累计计数，并与上一次采样求差
 未命中速度 = Δ(Total Read − Cached Read)/Δt
-实时命中率 = Δ(Cached Read) / Δ(Total Read) × 100%
+实时命中率 = 最近 30 秒窗口内 ΣΔ(Cached Read) / ΣΔ(Total Read) × 100%
 ```
 
 ### 启用条件（不满足时这些显示项根本不注册）
@@ -155,7 +156,7 @@ TMPluginGetInstance
 
 | 情况 | 显示 |
 | --- | --- |
-| 区间内没有读取（命中率分母为 0） | 命中率显示 `--`，各项速度显示 `0.00B/s` |
+| 最近 30 秒窗口内没有读取（命中率分母为 0） | 命中率显示 `--`，各项速度显示 `0.00B/s` |
 | 偶发一次采样失败 | 沿用上一次的数值（视为抖动，不清空显示） |
 | 连续 2 次及以上采样失败 | 各项显示 `--` |
 | 未提权或未安装 PrimoCache | 显示项不注册，主程序列表中看不到 |
@@ -266,7 +267,7 @@ TMPluginGetInstance
 | `< 1024 × 1024 × 1024` | `MB/s` |
 | `≥ 1024 × 1024 × 1024` | `GB/s` |
 
-数值部分固定为 **4 个字符**，避免任务栏上的数值宽度跳动：
+数值部分统一为 **4 个字符**（舍入边界可能出现 5 个字符），避免任务栏上的数值宽度跳动：
 
 | 数值大小 | 格式 | 示例 |
 | --- | --- | --- |
@@ -289,7 +290,7 @@ TMPluginGetInstance
 
 ## 扩展指南：新增一个显示项
 
-假设要新增“GPU 温度”，只需改 `config.cpp` 和 `config.h` 两个文件、共三处。
+假设要新增“GPU 温度”，只需在 `config.h` / `config.cpp` 里补上回调与配置，再在 `TaskBarDynamic.cpp` 里注册一行。
 
 ### 第 1 步：声明取数与格式化函数（`config.h`）
 
@@ -379,9 +380,9 @@ taskbardynamic/
 工程配置要点（`taskbardynamic.vcxproj`）：
 
 - 字符集 `Unicode`，配置类型 `DynamicLibrary`；
-- 四种配置（Debug/Release × x64/Win32）统一使用 **C++17**；
+- 四种配置（Debug/Release × x64/x86）统一使用 **C++17**；
 - 开启 **多处理器编译**（`/MP`）与一致性模式（`/permissive-`）；
-- 编译产物按目标平台命名（`TargetName`）：x64 输出 `taskbardynamic-x64.dll`，Win32 输出 `taskbardynamic-x86.dll`；
+- 编译产物按目标平台命名（`TargetName`）：x64 输出 `taskbardynamic-x64.dll`，x86（工程内平台名为 `Win32`）输出 `taskbardynamic-x86.dll`；
 - 源码为 **UTF-8 with BOM**；上游文件 `PluginInterface.h` 保持原始 GBK 编码，只含注释，不影响编译。
 
 ---
@@ -429,6 +430,11 @@ taskbardynamic/
 **清理**
 
 - 移除已无显示项使用的写入统计（`total_write` / `write_speed` / `deltaWrite`）。
+
+**文档**
+
+- 修正 `msbuild` 平台参数：解决方案里的 x86 平台名是 `x86` 而不是 `Win32`，原文档给出的命令会直接报 `MSB4126`；
+- 修正 PrimoCache 命中率描述：v1.2.1 已改为 30 秒滚动窗口，文档里残留的“最近 5 秒区间”说法一并更新。
 
 **验证**
 
