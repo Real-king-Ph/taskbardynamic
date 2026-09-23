@@ -16,7 +16,7 @@ const wchar_t* DynamicData<T>::GetItemId() const {
 
 template<typename T>
 const wchar_t* DynamicData<T>::GetItemLableText() const {
-	return info_.lable_.c_str();
+	return info_.label_.c_str();
 }
 
 template<typename T>
@@ -48,8 +48,8 @@ void DynamicData<T>::SetData(const ITMPlugin::MonitorInfo& monitor_info) {
 }
 
 template<typename T>
-void DynamicData<T>::GenerateData(const SYSTEMTIME& time) {
-	data_.PutInValue(time);
+void DynamicData<T>::GenerateData() {
+	data_.PutInValue();
 
 	if (info_.set_data_) {
 		info_.set_data_(value_text_, data_.GetValue());
@@ -67,10 +67,7 @@ void* DynamicData<T>::OnItemInfo(ItemInfoType info, void* para1, void* /*para2*/
 		}
 		break;
 	case IPluginItem::SET_ITEM_DATA:
-		if (para1 != nullptr)
-		{
-			GenerateData(*static_cast<const SYSTEMTIME*>(para1));
-		}
+		GenerateData();
 		break;
 	default:
 		break;

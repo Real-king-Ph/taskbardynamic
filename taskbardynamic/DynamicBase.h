@@ -3,10 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <cstdint>
-#include <ratio>
 #include <utility>
-#include <windows.h>
 
 /**
  * @brief 滑动窗口极值统计
@@ -27,8 +24,9 @@ template <typename T>
 class DynamicBase
 {
 public:
-	/// 与 FILETIME 相同的时间刻度（100ns），仅用于计算采样间隔
-	using Stamp = std::chrono::duration<std::int64_t, std::ratio<1, 10'000'000>>;
+	/// 单调时钟时间点，避免系统时间调整影响滑动窗口
+	using Clock = std::chrono::steady_clock;
+	using Stamp = Clock::time_point;
 
 	/// 窗口档数：10min / 5min / 2min / 当前值
 	static constexpr std::size_t kWindowCount = 4;
@@ -42,8 +40,8 @@ public:
 	/// 获取最近一次采样值
 	T GetValue() const noexcept { return value_; }
 
-	/// 以采样时刻推进一次滑动窗口
-	void PutInValue(const SYSTEMTIME& time);
+	/// 以当前单调时钟时刻推进一次滑动窗口
+	void PutInValue();
 
 	/// 当前值在最长窗口中的归一化位置，范围 0.0 ~ 1.0
 	float GenerateValue() const noexcept;
@@ -51,9 +49,7 @@ public:
 private:
 	using Sample = std::pair<T, Stamp>;
 
-	/// SYSTEMTIME -> FILETIME 刻度，转换失败时返回 0
-	static Stamp ToStamp(const SYSTEMTIME& time) noexcept;
-	/// to - from 的分钟数，系统时间被回拨时返回 0
+	/// to - from 的分钟数
 	static std::chrono::minutes ElapsedMinutes(Stamp from, Stamp to) noexcept;
 	/// 极值超时后向更短的窗口回退
 	void Decay(std::size_t index, Stamp now) noexcept;

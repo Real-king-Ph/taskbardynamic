@@ -11,7 +11,7 @@ template<typename T>
 struct DynamicInfo {
 	std::wstring name_;          ///< 显示项名称
 	std::wstring id_;            ///< 显示项唯一 ID，同一插件内不可重复
-	std::wstring lable_;         ///< 标签文本，如 "↑:"
+	std::wstring label_;         ///< 标签文本，如 "↑:"
 	std::wstring value_sample_;  ///< 数值示例文本，主程序据此估算显示宽度
 
 	int draw_graph_{ 0 };        ///< 是否绘制资源占用图：1 绘制，0 不绘制
@@ -51,7 +51,7 @@ private:
 	/// 缓存主程序推送的最新监控数据
 	void SetData(const ITMPlugin::MonitorInfo& monitor_info);
 	/// 推进滑动窗口并刷新显示文本
-	void GenerateData(const SYSTEMTIME& time);
+	void GenerateData();
 
 	DynamicBase<T> data_;
 	DynamicInfo<T> info_;

@@ -4,34 +4,15 @@
 #include <cassert>
 
 template <typename T>
-typename DynamicBase<T>::Stamp DynamicBase<T>::ToStamp(const SYSTEMTIME& time) noexcept
-{
-	FILETIME file_time{};
-	if (SystemTimeToFileTime(&time, &file_time) == FALSE) {
-		return Stamp{};
-	}
-
-	ULARGE_INTEGER ticks{};
-	ticks.LowPart = file_time.dwLowDateTime;
-	ticks.HighPart = file_time.dwHighDateTime;
-
-	// FILETIME 本身就是以 100ns 为单位的绝对时间戳，无需再做换算
-	return Stamp{ static_cast<std::int64_t>(ticks.QuadPart) };
-}
-
-template <typename T>
 std::chrono::minutes DynamicBase<T>::ElapsedMinutes(Stamp from, Stamp to) noexcept
 {
-	if (to <= from) {
-		return std::chrono::minutes::zero();  // 系统时间被回拨时按 0 处理
-	}
 	return std::chrono::duration_cast<std::chrono::minutes>(to - from);
 }
 
 template <typename T>
-void DynamicBase<T>::PutInValue(const SYSTEMTIME& time)
+void DynamicBase<T>::PutInValue()
 {
-	const Stamp now = ToStamp(time);
+	const Stamp now = Clock::now();
 	constexpr std::size_t current = kWindowCount - 1;
 
 	if (!initialized_) {

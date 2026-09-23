@@ -50,11 +50,8 @@ const wchar_t* DynamicWindow::GetInfo(PluginInfoIndex index) {
 }
 
 void DynamicWindow::DataRequired() {
-	SYSTEMTIME system_time{};
-	GetLocalTime(&system_time);
-
 	for (const auto& item : items_) {
-		item->OnItemInfo(IPluginItem::SET_ITEM_DATA, &system_time, nullptr);
+		item->OnItemInfo(IPluginItem::SET_ITEM_DATA, nullptr, nullptr);
 	}
 }
 
