@@ -34,11 +34,11 @@ const wchar_t* DynamicWindow::GetInfo(PluginInfoIndex index) {
 	case TMI_NAME:
 		return L"任务栏滚动图自适应";
 	case TMI_DESCRIPTION:
-		return L"在任务栏上显示实时上传/下载速度与 CPU 温度，并按窗口内的历史极值自适应绘制资源占用图";
+		return L"在任务栏上显示实时上传/下载速度、CPU 温度与 PrimoCache 命中/未命中速度及命中率，并按窗口内的历史极值绘制资源占用图";
 	case TMI_AUTHOR:
 		return L"Real-King-ph";
 	case TMI_COPYRIGHT:
-		return L"cpy";
+		return L"Copyright (C) 2025-2026 Real-King-ph";
 	case TMI_VERSION:
 		return L"v1.2.1";
 	case TMI_URL:
