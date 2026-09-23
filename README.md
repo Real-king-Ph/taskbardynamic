@@ -39,6 +39,8 @@ TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示
 | 资源占用图 | 三个显示项都会绘制图形，取值按 10 分钟窗口的历史极值归一化 |
 | 自动单位 | 数值部分固定 4 个字符，单位在 `B/s`、`KB/s`、`MB/s`、`GB/s` 之间自动切换 |
 | 声明式配置 | 显示项的名称、ID、标签、示例文本、取数回调、格式化回调全部集中在一张表里 |
+| PrimoCache 命中 / 未命中速度 | `命中: 11.8MB/s`、`未中: 345KB/s` |
+| PrimoCache 实时命中率 | `命中率: 99.7%`（最近 5 秒区间） |
 
 ---
 
@@ -113,10 +115,52 @@ TMPluginGetInstance
 | upload speed | `mq72ZrBHN2` | `↑:` | `12.1MB/s` | `MonitorInfo::up_speed` | 是 |
 | download speed | `DE7etVv1nR` | `↓:` | `12.1MB/s` | `MonitorInfo::down_speed` | 是 |
 | cpu temperature | `ST5sLiDY3f` | `CPU:` | `17°C` | `MonitorInfo::cpu_temperature` | 是 |
+| primocache hit read speed | `PC_HIT_SPD` | `命中:` | `12.1MB/s` | `rxpcc perf`：Cached Read 增量 | 是 |
+| primocache miss read speed | `PC_MISS_SPD` | `未中:` | `345KB/s` | 总读取 − 命中 | 是 |
+| primocache hit rate | `PC_HIT_RATE` | `命中率:` | `99.7%` | 命中 / 总读取 | 是 |
 
 > **注意**：`ID` 是主程序识别显示项的键。修改 ID 等同于新增一个显示项，用户原有的勾选状态、颜色等设置会失效，因此不要随意改动。
 
 ---
+
+## PrimoCache 集成（可选）
+
+插件内置 3 个 PrimoCache 显示项，数据来自 PrimoCache 自带的命令行工具 `rxpcc.exe`：
+
+```
+后台线程每 5 秒执行一次   rxpcc perf -a -u=b -s
+        ↓  解析累计计数，并与上一次采样求差
+未命中速度 = Δ(Total Read − Cached Read)/Δt
+实时命中率 = Δ(Cached Read) / Δ(Total Read) × 100%
+```
+
+### 启用条件（不满足时这些显示项根本不注册）
+
+| 条件 | 说明 |
+| --- | --- |
+| 已安装 PrimoCache | 以注册表 `HKLM\SOFTWARE\Romex Software\FancyCcV` 是否存在判断 |
+| TrafficMonitor 以管理员身份运行 | `rxpcc.exe` 需要管理员权限，未提权无法取数 |
+| 能找到 `rxpcc.exe` | 先从卸载信息读 `InstallLocation`，失败则回退默认路径 `C:\Program Files\PrimoCache` |
+| 启动时试采成功 | 加载插件时先采样一次，取不到数据就不注册这些显示项 |
+
+### 采样间隔与开销
+
+- 间隔由 `PrimoCacheMonitor::kIntervalMs` 控制，**默认 5000 毫秒**。
+- 本机实测单次 `rxpcc perf` 调用约 **44 ms 墙钟 / 16 ms CPU**（含进程创建），即 5 秒间隔约 **0.9% 时间 / 0.3% CPU**；想更省可改成 `10000`。
+- **惰性采样**：只有这 3 个显示项中任意一个被主程序绘制时才采样；若连续 30 秒（`kIdleTimeoutMs`）没有任何一项被绘制，就**完全停止采样**（不再启动 `rxpcc`，零开销）。
+  恢复显示时会先采一次作为基准，约 5 秒后给出速率（避免把空闲期间累计的增长当成速率）。
+- 采样在**后台线程**执行，UI 线程只读取快照，不会阻塞主程序。
+
+### 异常与无活动时的显示
+
+| 情况 | 显示 |
+| --- | --- |
+| 区间内没有读取（命中率分母为 0） | 命中率显示 `--`，各项速度显示 `0.00B/s` |
+| 偶发一次采样失败 | 沿用上一次的数值（视为抖动，不清空显示） |
+| 连续 2 次及以上采样失败 | 各项显示 `--` |
+| 未提权或未安装 PrimoCache | 显示项不注册，主程序列表中看不到 |
+
+> 「命中」= 由缓存（L1 内存 + L2 SSD）服务的读取；「未命中」= 总读取 − 命中，即回落到物理磁盘的部分。若未启用一级缓存，命中全部来自二级缓存。
 
 ## 工作原理
 
@@ -151,6 +195,7 @@ TMPluginGetInstance
 | `DynamicData.h/.cpp` | 单个显示项：接口适配 + 文本缓存，实例化 `int` / `unsigned long long` / `float` |
 | `DynamicBase.h/.cpp` | 滑动窗口极值统计与归一化，与具体业务无关 |
 | `config.h/.cpp` | 显示项配置表与取数/格式化回调 |
+| `PrimoCache.h/.cpp` | PrimoCache 数据源抽象（`IPrimoCacheSource`）、CLI 实现与后台采样器 |
 | `dllmain.cpp` | DLL 入口，无额外逻辑 |
 
 ### 运行时数据流
@@ -364,6 +409,13 @@ taskbardynamic/
 ---
 
 ## 更新日志
+
+### v1.2（未发布）
+
+- 新增 3 个 PrimoCache 显示项：命中速度、未命中速度、实时命中率；
+- 数据经 `rxpcc.exe` 后台采样（默认 5 秒）计算增量速率；数据源已抽象为 `IPrimoCacheSource`，后续可平滑替换为驱动直读（`\\.\FancyCcV` + IOCTL）；
+- 未提权或未安装 PrimoCache 时**不注册**这些显示项（不占用任何资源）；
+- 版本号提升到 `v1.2`。
 
 ### v1.1
 

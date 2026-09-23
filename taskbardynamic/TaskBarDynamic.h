@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "PluginInterface.h"
 #include "DynamicData.h"
+#include "PrimoCache.h"
 #include <memory>
 #include <vector>
 
@@ -28,6 +29,12 @@ private:
 	template <typename T>
 	void AddItem(const DynamicInfo<T>& info) {
 		items_.emplace_back(std::make_unique<DynamicData<T>>(info));
+	}
+
+	/// PrimoCache 显示项：在被绘制时上报，用于惰性采样
+	template <typename T>
+	void AddPrimoItem(const DynamicInfo<T>& info) {
+		items_.emplace_back(std::make_unique<PrimoCacheItem<T>>(info));
 	}
 
 	std::vector<std::unique_ptr<IPluginItem>> items_;

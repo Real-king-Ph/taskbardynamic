@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "TaskBarDynamic.h"
 #include "config.h"
+#include "PrimoCache.h"
 
 DynamicWindow& DynamicWindow::GetInstance()
 {
@@ -14,6 +15,14 @@ DynamicWindow::DynamicWindow()
 	AddItem(config::upload_info_);
 	AddItem(config::download_info_);
 	AddItem(config::cpu_temperature_info_);
+
+	// PrimoCache 显示项只在“已安装 PrimoCache + 具备管理员权限 + 能取到数据”时注册；
+	// 任一条件不满足时这些项不会出现在主程序的显示项列表里（等于不生效）。
+	if (PrimoCacheMonitor::Instance().Probe()) {
+		AddPrimoItem(config::primo_hit_speed_info_);
+		AddPrimoItem(config::primo_miss_speed_info_);
+		AddPrimoItem(config::primo_hit_rate_info_);
+	}
 }
 
 ITMPlugin* TMPluginGetInstance() {
@@ -31,7 +40,7 @@ const wchar_t* DynamicWindow::GetInfo(PluginInfoIndex index) {
 	case TMI_COPYRIGHT:
 		return L"cpy";
 	case TMI_VERSION:
-		return L"v1.1";
+		return L"v1.2";
 	case TMI_URL:
 		return L"https://github.com/Real-king-Ph/taskbardynamic";
 	default:
