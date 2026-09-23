@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <array>
 #include <atomic>
 #include <cstdint>
 #include <memory>
@@ -9,11 +10,15 @@
 
 #include "DynamicData.h"
 
+/// PrimoCache 采样参数
+constexpr int kSampleIntervalMs = 5000;     ///< 采样间隔（毫秒）：单次 rxpcc 调用实测约 44ms 墙钟 / 16ms CPU
+constexpr int kHitRateWindowMs = 30000;     ///< 命中率统计窗口（毫秒）：取窗口内的累计比值，避免单次 I/O 导致 0%/100% 跳变
+constexpr std::size_t kHitRateSamples = static_cast<std::size_t>(kHitRateWindowMs / kSampleIntervalMs);   ///< 窗口内的采样数
+
 /// 一次采样得到的原始累计计数（自 PrimoCache 统计起始时间起算，单位：字节）
 struct PrimoCacheCounters {
 	std::uint64_t total_read{ 0 };   ///< Total Read      —— 该卷收到的读请求吞吐
 	std::uint64_t cached_read{ 0 };  ///< Cached Read     —— 由缓存(L1+L2)服务的读取
-	std::uint64_t total_write{ 0 };  ///< Total Write(Req)—— 该卷收到的写请求吞吐
 };
 
 /**
@@ -48,9 +53,32 @@ struct PrimoCacheSnapshot {
 	std::uint64_t read_speed{ 0 };           ///< 读取速度      Δ(Total Read)/Δt
 	std::uint64_t hit_speed{ 0 };            ///< 命中速度      Δ(Cached Read)/Δt
 	std::uint64_t miss_speed{ 0 };           ///< 未命中速度    Δ(Total Read - Cached Read)/Δt
-	std::uint64_t write_speed{ 0 };          ///< 写入速度      Δ(Total Write(Req))/Δt
 	bool          hit_rate_valid{ false };   ///< 区间内有读取时才有意义
 	double        hit_rate_percent{ 0.0 };   ///< 实时命中率    Δ(Cached Read)/Δ(Total Read)
+};
+
+/**
+ * @brief 命中率滚动窗口（方案 A）
+ *
+ * 命中率取「窗口内累计命中 / 窗口内累计读取」，而不是单个采样区间的比值，
+ * 这样在读取量很少的区间也不会出现 0% / 100% 的跳变。
+ */
+class HitRateWindow
+{
+public:
+	/// 清空窗口（进入空闲、或重新建立基准时调用）
+	void Reset() noexcept;
+
+	/// 记录一个采样区间的增量（读取量、命中量）
+	void Push(std::uint64_t reads, std::uint64_t hits) noexcept;
+
+	/// 取窗口内的命中率（百分比）；返回 false 表示窗口内没有任何读取
+	bool GetPercent(double& percent) const noexcept;
+
+private:
+	std::array<std::uint64_t, kHitRateSamples> reads_{};
+	std::array<std::uint64_t, kHitRateSamples> hits_{};
+	std::size_t pos_{ 0 };
 };
 
 /**
@@ -73,7 +101,7 @@ public:
 	const std::wstring& Reason() const { return reason_; }
 
 	/// 采样间隔（毫秒）
-	static constexpr int kIntervalMs = 5000;
+	static constexpr int kIntervalMs = kSampleIntervalMs;
 
 	/// 连续失败达到该次数才把显示置为无效（单次失败视为抖动，沿用上一次的值）
 	static constexpr int kFailureThreshold = 2;
@@ -112,6 +140,7 @@ private:
 	bool has_previous_{ false };
 	int consecutive_failures_{ 0 };      ///< 连续采样失败次数（仅后台线程访问）
 	std::atomic<std::uint64_t> last_query_ms_{ 0 };  ///< 最近一次被主程序查询的时间（惰性采样判据）
+	HitRateWindow hit_rate_window_;                  ///< 命中率滚动窗口（仅后台线程访问）
 	std::thread worker_;
 	std::atomic<bool> stop_{ false };
 	mutable std::mutex mutex_;

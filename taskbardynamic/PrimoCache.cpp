@@ -151,11 +151,14 @@ std::uint64_t ParseFirstNumber(const std::string& text)
 			value = value * 10 + static_cast<std::uint64_t>(ch - '0');
 			started = true;
 		}
+		else if (ch == ',') {
+			continue;                   // 千位分隔符：数字中间也要忽略，否则 210,726,629,888 会被截断成 210
+		}
 		else if (started) {
 			break;                      // 数字结束
 		}
-		else if (ch == ',' || ch == ' ' || ch == '\t' || ch == '\r') {
-			continue;                   // 允许千位分隔符与空白
+		else if (ch == ' ' || ch == '\t' || ch == '\r') {
+			continue;
 		}
 		else {
 			return 0;                   // 遇到其它字符说明不是数字
@@ -200,9 +203,7 @@ bool ParseCounters(const std::string& text, PrimoCacheCounters& counters)
 		else if (label == "Cached Read") {
 			result.cached_read += ParseFirstNumber(value);
 		}
-		else if (label == "Total Write (Req)") {
-			result.total_write += ParseFirstNumber(value);
-		}
+
 	}
 
 	if (!sawTotalRead) {
@@ -306,7 +307,7 @@ private:
 			return false;
 		}
 
-		const DWORD deadline = GetTickCount() + kProcessTimeoutMs;
+		const ULONGLONG deadline = GetTickCount64() + kProcessTimeoutMs;
 		bool finished = false;
 		char buffer[1024];
 
@@ -334,7 +335,7 @@ private:
 				break;
 			}
 
-			if (static_cast<LONG>(GetTickCount() - deadline) >= 0) {
+			if (GetTickCount64() >= deadline) {
 				break;      // 超时
 			}
 		}
@@ -355,6 +356,39 @@ private:
 };
 
 } // namespace
+
+void HitRateWindow::Reset() noexcept
+{
+	reads_.fill(0);
+	hits_.fill(0);
+	pos_ = 0;
+}
+
+void HitRateWindow::Push(std::uint64_t reads, std::uint64_t hits) noexcept
+{
+	reads_[pos_] = reads;
+	hits_[pos_] = hits;
+	pos_ = (pos_ + 1) % kHitRateSamples;
+}
+
+bool HitRateWindow::GetPercent(double& percent) const noexcept
+{
+	std::uint64_t totalReads = 0;
+	std::uint64_t totalHits = 0;
+	for (std::size_t i = 0; i < kHitRateSamples; ++i) {
+		totalReads += reads_[i];
+		totalHits += hits_[i];
+	}
+
+	if (totalReads == 0) {
+		return false;       // 窗口内没有任何读取，命中率无意义
+	}
+
+	double value = 100.0 * static_cast<double>(totalHits) / static_cast<double>(totalReads);
+	value = value < 0.0 ? 0.0 : (value > 100.0 ? 100.0 : value);
+	percent = value;
+	return true;
+}
 
 std::unique_ptr<IPrimoCacheSource> CreatePrimoCacheSource()
 {
@@ -494,6 +528,7 @@ void PrimoCacheMonitor::WorkerMainImpl()
 			active = false;
 			has_previous_ = false;
 			consecutive_failures_ = 0;
+			hit_rate_window_.Reset();
 			if (SleepInterruptible(kIdlePollMs)) {
 				break;
 			}
@@ -514,10 +549,7 @@ void PrimoCacheMonitor::WorkerMainImpl()
 				MarkFailure();
 			}
 			active = true;
-			if (SleepInterruptible(kIntervalMs)) {
-				break;
-			}
-			continue;
+			continue;       // 下一轮循环等待 kIntervalMs 后再采第二次，即可算出速率
 		}
 
 		if (SleepInterruptible(kIntervalMs)) {
@@ -544,19 +576,20 @@ void PrimoCacheMonitor::WorkerMainImpl()
 				? current.total_read - previous_.total_read : 0;
 			const std::uint64_t deltaHit = current.cached_read >= previous_.cached_read
 				? current.cached_read - previous_.cached_read : 0;
-			const std::uint64_t deltaWrite = current.total_write >= previous_.total_write
-				? current.total_write - previous_.total_write : 0;
+
 			const std::uint64_t deltaMiss = deltaRead >= deltaHit ? deltaRead - deltaHit : 0;
 
 			snapshot.rate_valid = true;
 			snapshot.read_speed = static_cast<std::uint64_t>(deltaRead / seconds);
 			snapshot.hit_speed = static_cast<std::uint64_t>(deltaHit / seconds);
 			snapshot.miss_speed = static_cast<std::uint64_t>(deltaMiss / seconds);
-			snapshot.write_speed = static_cast<std::uint64_t>(deltaWrite / seconds);
 
-			if (deltaRead > 0) {
+			// 命中率：取最近 kHitRateWindowMs（30 秒）内的累计比值，避免小样本跳变
+			hit_rate_window_.Push(deltaRead, deltaHit);
+			double percent = 0.0;
+			if (hit_rate_window_.GetPercent(percent)) {
 				snapshot.hit_rate_valid = true;
-				snapshot.hit_rate_percent = 100.0 * static_cast<double>(deltaHit) / static_cast<double>(deltaRead);
+				snapshot.hit_rate_percent = percent;
 			}
 		}
 
