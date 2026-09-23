@@ -538,6 +538,12 @@ void PrimoCacheMonitor::WorkerMainImpl()
 
 		if (!in_use) {
 			// 没有任何 PrimoCache 显示项在绘制：完全停止采样（不启动 rxpcc），并丢弃基准
+			if (active) {
+				// 清除上一次的速率值，避免下次恢复显示时短暂显示空闲前的旧值。
+				PrimoCacheSnapshot idle;
+				idle.valid = true;
+				Publish(idle);
+			}
 			active = false;
 			has_previous_ = false;
 			consecutive_failures_ = 0;
@@ -551,6 +557,10 @@ void PrimoCacheMonitor::WorkerMainImpl()
 		if (!active) {
 			// 刚恢复显示：先采一次作为基准（不发布速率），
 			// 否则会把空闲期间累计的增长当成“速率”。
+			PrimoCacheSnapshot not_ready;
+			not_ready.valid = true;
+			Publish(not_ready);
+
 			PrimoCacheCounters baseline;
 			if (source_->Sample(baseline)) {
 				previous_ = baseline;

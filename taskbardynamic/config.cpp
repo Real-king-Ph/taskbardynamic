@@ -32,12 +32,14 @@ namespace config {
 		// ---- PrimoCache 取值状态 ----
 		// 由 get_data_ 更新、由格式化回调读取，保证同一周期内数值与标签一致
 		std::atomic<bool> g_primo_valid{ false };           ///< 最近一次采样是否成功
+		std::atomic<bool> g_primo_rate_valid{ false };      ///< 是否已完成两次采样并算出速率
 		std::atomic<bool> g_primo_hit_rate_valid{ false };  ///< 区间内有读取时命中率才有效
 
 		/// 取一次快照并同步状态标记
 		PrimoCacheSnapshot TakePrimoSnapshot() {
 			const PrimoCacheSnapshot snapshot = PrimoCacheMonitor::Instance().Snapshot();
 			g_primo_valid.store(snapshot.valid);
+			g_primo_rate_valid.store(snapshot.rate_valid);
 			g_primo_hit_rate_valid.store(snapshot.hit_rate_valid);
 			return snapshot;
 		}
@@ -99,8 +101,8 @@ namespace config {
 
 	// ---- PrimoCache 文本格式化 ----
 	void SetPrimoSpeed(std::wstring& text, unsigned long long value) {
-		if (!g_primo_valid.load()) {
-			text = L"--";           // 连续多次采样失败（服务停止 / 取数异常）
+		if (!g_primo_valid.load() || !g_primo_rate_valid.load()) {
+			text = L"--";           // 采样失败，或尚未完成两次采样、速率还未就绪
 			return;
 		}
 		SetNetSpeed(text, value);   // 复用网速的自动单位格式化
