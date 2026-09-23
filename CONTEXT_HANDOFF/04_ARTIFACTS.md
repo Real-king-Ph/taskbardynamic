@@ -138,3 +138,9 @@
   - 当前状态：存在，未跟踪（git status 显示 `?? _handoff/`）；内容已并入本文件
   - 如何使用：按 [Q-010] 处置（默认删除，避免散落文件）
   - 来源：[S-011]
+
+- [A-017] [P1] [已确认] 许可证文件
+  - 绝对路径：`D:\coding\taskbardynamic\LICENSE`
+  - 用途：声明本项目继承 TrafficMonitor 原作者 Zhong Yang 的许可类型
+  - 当前状态：已新增，许可证原文保持上游内容
+  - 来源：用户原话（本会话“版权类型继承原作者。”）+ TrafficMonitor 官方仓库 `LICENSE`

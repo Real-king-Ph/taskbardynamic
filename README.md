@@ -480,6 +480,10 @@ taskbardynamic/
 
 ## 许可
 
-本仓库未附带许可证文件，请遵循作者发布的原始说明使用。
+本项目采用并继承 TrafficMonitor 原作者 Zhong Yang 的许可类型：
 
-`PluginInterface.h` 来自 TrafficMonitor 项目（Copyright (C) Zhong Yang），版权归原作者所有。
+**"Anti 996" License Version 1.0 (Draft)**
+
+完整许可证条款见 [`LICENSE`](LICENSE)。
+
+`PluginInterface.h` 来自 TrafficMonitor 项目（Copyright (C) Zhong Yang），版权归原作者所有，并按其原始许可证授权。本项目自身代码的版权仍归 `Real-King-ph`。
