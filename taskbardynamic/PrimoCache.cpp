@@ -167,6 +167,23 @@ std::uint64_t ParseFirstNumber(const std::string& text)
 	return value;
 }
 
+/// 把「区间增量 / 秒」换算为速率（字节/秒），并限制在合理范围
+/// 注意：直接做 double→uint64 转换时，若 dt 异常小则结果可能超出 uint64 范围（未定义行为），因此先钳位。
+std::uint64_t ToRate(std::uint64_t delta, double seconds) noexcept
+{
+	if (!(seconds > 0.0)) {
+		return 0;
+	}
+
+	const double rate = static_cast<double>(delta) / seconds;
+	if (!(rate > 0.0)) {                    // 同时覆盖 NaN
+		return 0;
+	}
+
+	constexpr double kMaxRate = 1.0e12;     // 上限 1 TB/s，超出视为异常数据
+	return rate > kMaxRate ? static_cast<std::uint64_t>(kMaxRate) : static_cast<std::uint64_t>(rate);
+}
+
 /// 解析 rxpcc perf 输出；多卷时累加
 bool ParseCounters(const std::string& text, PrimoCacheCounters& counters)
 {
@@ -217,6 +234,8 @@ bool ParseCounters(const std::string& text, PrimoCacheCounters& counters)
 class RxpccSource final : public IPrimoCacheSource
 {
 public:
+	RxpccSource() : rxpcc_path_(DetectInstallDirectory() + L"\\rxpcc.exe") {}
+
 	bool Available() const override
 	{
 		if (!IsProcessElevated()) {
@@ -255,13 +274,7 @@ public:
 	}
 
 private:
-	const std::wstring& GetRxpccPath() const
-	{
-		if (rxpcc_path_.empty()) {
-			rxpcc_path_ = DetectInstallDirectory() + L"\\rxpcc.exe";
-		}
-		return rxpcc_path_;
-	}
+	const std::wstring& GetRxpccPath() const { return rxpcc_path_; }
 
 	bool RunCommand(std::string& output)
 	{
@@ -351,7 +364,7 @@ private:
 		return finished;
 	}
 
-	mutable std::wstring rxpcc_path_;
+	std::wstring rxpcc_path_;    ///< 构造时一次性解析，之后只读（避免多线程惰性初始化竞态）
 	mutable std::wstring reason_;
 };
 
@@ -580,9 +593,9 @@ void PrimoCacheMonitor::WorkerMainImpl()
 			const std::uint64_t deltaMiss = deltaRead >= deltaHit ? deltaRead - deltaHit : 0;
 
 			snapshot.rate_valid = true;
-			snapshot.read_speed = static_cast<std::uint64_t>(deltaRead / seconds);
-			snapshot.hit_speed = static_cast<std::uint64_t>(deltaHit / seconds);
-			snapshot.miss_speed = static_cast<std::uint64_t>(deltaMiss / seconds);
+			snapshot.read_speed = ToRate(deltaRead, seconds);
+			snapshot.hit_speed = ToRate(deltaHit, seconds);
+			snapshot.miss_speed = ToRate(deltaMiss, seconds);
 
 			// 命中率：取最近 kHitRateWindowMs（30 秒）内的累计比值，避免小样本跳变
 			hit_rate_window_.Push(deltaRead, deltaHit);

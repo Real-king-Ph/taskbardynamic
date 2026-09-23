@@ -14,6 +14,8 @@
 constexpr int kSampleIntervalMs = 5000;     ///< 采样间隔（毫秒）：单次 rxpcc 调用实测约 44ms 墙钟 / 16ms CPU
 constexpr int kHitRateWindowMs = 30000;     ///< 命中率统计窗口（毫秒）：取窗口内的累计比值，避免单次 I/O 导致 0%/100% 跳变
 constexpr std::size_t kHitRateSamples = static_cast<std::size_t>(kHitRateWindowMs / kSampleIntervalMs);   ///< 窗口内的采样数
+static_assert(kSampleIntervalMs > 0, "kSampleIntervalMs 必须大于 0");
+static_assert(kHitRateSamples >= 1, "kHitRateWindowMs 必须不小于一个采样间隔，否则命中率窗口为空（会导致取模 0）");
 
 /// 一次采样得到的原始累计计数（自 PrimoCache 统计起始时间起算，单位：字节）
 struct PrimoCacheCounters {
