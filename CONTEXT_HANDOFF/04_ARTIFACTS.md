@@ -12,59 +12,59 @@
 - [A-001] [P0] [已确认] 代码仓库根目录
   - 绝对路径：`D:\coding\taskbardynamic`
   - 用途：全部源码、工程、README、构建输出
-  - 当前状态：存在；`master` HEAD=`261213e`，含 2 个未提交修改 + 未跟踪 `_handoff/`
-  - 版本 / commit / hash：`261213ecc791d155344449d001b417e410ae7410`
+  - 当前状态：存在；本轮从 `c27dafc` 依次提交 `517cdd7`、`3a653a8`、`f47e36c`、`0c81e41`，已推送远端；HANDOFF 更新提交随后加入
+  - 版本 / commit / hash：基线 `c27dafc505987d4b23501aff9ebed9e9f36e62d1`
   - 如何使用：作为所有命令的工作目录（`cd D:\coding\taskbardynamic`）
-  - 来源：[S-007]
+  - 来源：[S-013]/[S-014]
 
 - [A-002] [P0] [已确认] 项目文档 `README.md`
   - 绝对路径：`D:\coding\taskbardynamic\README.md`
   - 用途：功能说明、编译、安装、显示项、工作原理、更新日志
-  - 当前状态：24,218 字节；**有未提交修改**；L414/L416 仍写「v1.2.1（未发布）」/「尚未发布」（待修，[Q-001]）
-  - 版本 / commit / hash：工作区版本（未提交）
+  - 当前状态：24,516 字节；L414/L416 已修正为 v1.2.1 已发布、Latest、标签 `261213e`；异常规则新增“速率未就绪显示 `--`”
+  - 版本 / commit / hash：`517cdd7` + `f47e36c` + `0c81e41`
   - 如何使用：改动后与源码一起提交；文档口径必须与实现/发布状态一致
   - 来源：[S-005]、[S-007]
 
 - [A-003] [P0] [已确认] PrimoCache 模块头文件 `taskbardynamic/PrimoCache.h`
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\PrimoCache.h`
   - 用途：定义 `IPrimoCacheSource` 抽象、`PrimoCacheCounters`、`PrimoCacheSnapshot`、采样器单例 `PrimoCacheMonitor` 及全部采样常量
-  - 当前状态：6,979 字节，已提交（`261213e`）；mtime 2026-09-23 16:18:08
-  - 版本 / commit / hash：属于 `261213e`
+  - 当前状态：6,979 字节；速率就绪语义仍是 `valid + rate_valid`
+  - 版本 / commit / hash：基线 `261213e`；显示门控由 `f47e36c` 更新
   - 如何使用：修改采样间隔/窗口/失败阈值/空闲超时都在此文件的常量处改
   - 来源：[S-006]
 
 - [A-004] [P0] [已确认] PrimoCache 实现 `taskbardynamic/PrimoCache.cpp`
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\PrimoCache.cpp`
   - 用途：`RxpccSource`（定位/权限检测/进程调用/文本解析）+ 后台采样线程 + 增量计算
-  - 当前状态：17,339 字节，已提交；mtime 16:18:09
-  - 版本 / commit / hash：属于 `261213e`
+  - 当前状态：17,606 字节；空闲/重新建立基准时会发布“速率未就绪”快照
+  - 版本 / commit / hash：`f47e36c`
   - 如何使用：解析与采样行为改动在此；改后必须跑解析器用例
   - 来源：[S-006]
 
 - [A-005] [P0] [已确认] 显示项配置 `taskbardynamic/config.h` / `config.cpp`
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\config.h`、`...\config.cpp`
   - 用途：声明式显示项表（名称、ID、标签、示例文本、是否绘图、取数回调、格式化回调）
-  - 当前状态：`config.cpp` 4,913 字节（含 `L"命中:"` / `L"未中:"` / `L"命中率:"`），已提交
-  - 版本 / commit / hash：属于 `261213e`
+  - 当前状态：`config.cpp` 5,086 字节（含 `L"命中:"` / `L"未中:"` / `L"命中率:"`）；速度显示同时检查 `valid` 与 `rate_valid`
+  - 版本 / commit / hash：`f47e36c`
   - 如何使用：新增显示项时改 config.h/config.cpp 并在 `TaskBarDynamic.cpp` 注册
   - 来源：[S-006]
 
 - [A-006] [P0] [已确认] 插件主体 `taskbardynamic/TaskBarDynamic.h` / `.cpp`、`dllmain.cpp`
-  - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\TaskBarDynamic.cpp`（2,327 字节，**有未提交修改**）、`TaskBarDynamic.h`、`dllmain.cpp`
+  - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\TaskBarDynamic.cpp`（2,258 字节）、`TaskBarDynamic.h`、`dllmain.cpp`
   - 用途：`ITMPlugin` 实现、单例、显示项注册、`GetInfo()`（名称/描述/作者/版权/版本）、DLL 入口
-  - 当前状态：`TaskBarDynamic.cpp` 含未提交改动（`TMI_DESCRIPTION` 扩充 PrimoCache 说明、`TMI_COPYRIGHT` 由 `cpy` 改为 `Copyright (C) 2025-2026 Real-King-ph`）
+  - 当前状态：`DataRequired()` 不再获取本地 `SYSTEMTIME`，只触发各显示项用单调时钟推进窗口
   - 版本 / commit / hash：`TMI_VERSION` 当前为 `v1.2.1`
   - 如何使用：版本号、插件元信息在此文件
   - 来源：[S-006]、[S-007]
 
 - [A-007] [P1] [已确认] 构建产物（本地）
-  - 绝对路径与当前哈希（本会话实测）：
-    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 71,168 B / `AE62E841955E2D80…` / mtime 2026-09-23 18:40:31
-    - `D:\coding\taskbardynamic\Release\taskbardynamic-x86.dll` — 65,024 B / `7BF0DD33CF9F1E97…` / mtime 18:39:51
-    - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 774,144 B / mtime 18:39:42
-    - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 578,560 B / mtime 18:39:48
+  - 绝对路径与当前哈希（2026-09-23 21:53 实测）：
+    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 70,656 B / `01F685774CB5F8CE9CEC5BA6559E158EB28D0CBE5EED31CB3861B5DF2BE2CC56` / 21:53:51
+    - `D:\coding\taskbardynamic\Release\taskbardynamic-x86.dll` — 65,536 B / `EED4E5F74DE7B403E1DDACB8A980B4FF400489700A9B0ED1FD6B28796FB98800` / 21:37:50
+    - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 771,072 B / `C47979DEB66A1FA4C33BE56C3AFDA504595B2C14FF92032B30C06F35C23D005B` / 21:37:40
+    - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 576,512 B / `BDFA69D32CB9DBEE9B6C9DB24422511BFBEBC7C56146E342CC4173C0D9C7DD6C` / 21:37:43
   - 用途：部署到 TrafficMonitor `plugins`、上传 Release 附件
-  - 当前状态：**与已发布 v1.2.1 附件不一致**（因为包含未提交改动，见 [R-009]）
+  - 当前状态：包含本轮三个修复，**尚未部署、尚未作为新 Release 发布**；与 v1.2.1 发布附件预期不一致
   - 如何使用：部署/发布前先确认改动已提交，再重编译并比对 SHA256
   - 来源：[S-010]、[S-007]
 
@@ -98,11 +98,11 @@
   - 来源：[S-002]（旧会话 17:01 回复）
 
 - [A-011] [P0] [已确认] 本文件（交接入口）
-  - 绝对路径：`D:\coding\taskbardynamic\CONTEXT\_HANDOFF.md`
-  - 用途：新对话继续工作的唯一入口
-  - 当前状态：正在分批生成（本会话）
-  - 如何使用：新对话第一步完整读取本文件
-  - 来源：[S-003]
+  - 绝对路径：`D:\coding\taskbardynamic\CONTEXT_HANDOFF\00_INDEX.md`
+  - 用途：新对话继续工作的唯一入口；按协议选择性读取分域文件
+  - 当前状态：项目级拆分结构有效
+  - 如何使用：新对话先读 `AGENTS.md` → `PROTOCOL.md` → `00_INDEX.md`
+  - 来源：[S-003]/[S-012]
 
 - [A-012] [P2] [已确认] 旧会话原始记录（回查用）
   - 绝对路径：
@@ -132,11 +132,11 @@
   - 如何使用：需要复现验证时重新截图，但**不要提交**（[R-002]）
   - 来源：[S-002]、[S-007]
 
-- [A-016] [P2] [待确认] 本会话早先创建的中间交接稿
+- [A-016] [P2] [已完成] 本会话早先创建的中间交接稿
   - 绝对路径：`D:\coding\taskbardynamic\_handoff\2026-09-23-traffic-monitor.md`
   - 用途：曾用于在旧会话外承载交接摘要
-  - 当前状态：存在，未跟踪（git status 显示 `?? _handoff/`）；内容已并入本文件
-  - 如何使用：按 [Q-010] 处置（默认删除，避免散落文件）
+  - 当前状态：已不存在；内容已并入项目级 HANDOFF
+  - 如何使用：不要重新创建散落交接文件
   - 来源：[S-011]
 
 - [A-017] [P1] [已确认] 许可证文件
@@ -144,3 +144,10 @@
   - 用途：声明本项目继承 TrafficMonitor 原作者 Zhong Yang 的许可类型
   - 当前状态：已新增，许可证原文保持上游内容
   - 来源：用户原话（本会话“版权类型继承原作者。”）+ TrafficMonitor 官方仓库 `LICENSE`
+
+- [A-018] [P1] [已确认] 绘图滑动窗口实现 `taskbardynamic/DynamicBase.h` / `.cpp`、`DynamicData.h` / `.cpp`
+  - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\DynamicBase.h/.cpp`、`DynamicData.h/.cpp`
+  - 用途：按 10/5/2 分钟窗口维护 min/max 并归一化资源占用图；把显示项数据/文本回调接到主机接口
+  - 当前状态：字段已修正为 `label_`；窗口时间基准为 `std::chrono::steady_clock`，不再使用 `SYSTEMTIME`
+  - 版本 / commit / hash：`3a653a8`
+  - 来源：本轮源码修改与构建验证（[S-013]/[S-014]）

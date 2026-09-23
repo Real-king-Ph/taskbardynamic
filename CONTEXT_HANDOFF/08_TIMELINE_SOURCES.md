@@ -45,6 +45,7 @@
 | 19:0x（本轮） | 用户下达「长对话上下文压缩与交接」指令（要求逐步写入、不要一次性构建） | 正在分批生成 `CONTEXT\_HANDOFF.md` | 当前任务 | [S-003] |
 | 2026-09-23（本轮） | 用户确认可拆分并授权执行项目级持久化 | 创建 `AGENTS.md`、`PROTOCOL.md`、`00_INDEX.md`，将 81 KB 旧单文件无损拆分为分域文件，并删除旧单文件及重复归档 | 新对话可通过项目指令自动进入上下文交接流程 | [S-012] |
 | 2026-09-23（本轮） | 用户要求版权类型继承原作者 | 采用 TrafficMonitor 原作者的 Anti 996 License v1.0 (Draft)，新增 `LICENSE` 并更新 README 许可说明 | 许可类型与上游原作者一致 | [S-012] |
+| 2026-09-23 21:25-21:58（本轮） | 用户恢复全部修改，并要求依次修复 README 发布状态、`lable_`/绘图时钟、速率未就绪显示；每项独立 commit，全部确认后 push，完成后关机 | 提交 `517cdd7`、`3a653a8`、`f47e36c`、`0c81e41`；四个构建配置 0 warning/0 error；Release x64 `/analyze` 0 告警；推送 `c27dafc..0c81e41` 成功 | README、显示字段/窗口时钟、PrimoCache 就绪态修复完成；剩余加固见 [Q-011] | [S-013]/[S-014] |
 ## 14. 原始来源索引
 
 | 来源 ID   | 位置 | 内容摘要 | 何时需要回查 |
@@ -53,7 +54,7 @@
 | [S-002] | 同 [S-001] 的两个 rollout 文件中 `role=assistant` 条目（`phase=final_answer` 为交付结论，`commentary` 为过程说明） | 助手历次交付、方案说明、验证数据、发布记录 | 需要实现细节、验证数值、方案权衡时 |
 | [S-003] | 本会话 rollout：`...\rollout-2026-09-23T18-28-28-01a0cdcf-4495-76c3-8429-770c83733cf9.jsonl`（用户消息） | 本会话用户原话：卡死现象、放弃旧会话、压缩交接指令 | 需要本轮任务口径与用户确认时 |
 | [S-004] | 同 [S-003] 的助手回复 + 本会话终端命令输出 | 旧会话卡死排查结论（日志、token 统计、代理存活、重试实测） | 需要卡死证据与复现细节时 |
-| [S-005] | `D:\coding\taskbardynamic\README.md`（工作区版本，24,218 B） | 功能/编译/安装/显示项/工作原理/更新日志 | 核对文档口径、定位 L414/L416 待修内容时 |
+| [S-005] | `D:\coding\taskbardynamic\README.md`（当前 24,516 B） | 功能/编译/安装/显示项/工作原理/更新日志 | 核对文档口径与显示规则时 |
 | [S-006] | `D:\coding\taskbardynamic\taskbardynamic\` 下源码：`config.h/.cpp`、`PrimoCache.h/.cpp`、`TaskBarDynamic.h/.cpp`、`dllmain.cpp`、`DynamicBase.h/.cpp`、`DynamicData.h/.cpp`、`taskbardynamic.vcxproj(.filters)`、`PluginInterface.h`，以及 `D:\coding\taskbardynamic\taskbardynamic.sln` | 权威实现与常量、显示项 ID/标签、平台名映射 | 改代码、核对常量/ID、确认平台名时 |
 | [S-007] | 命令输出：`git log --oneline`、`git status --short`、`git diff`、`git rev-parse HEAD`、`git tag --list`、`git diff --stat`（本会话执行，工作目录 `D:\coding\taskbardynamic`） | 提交历史、未提交改动、标签现状 | 核对版本、提交范围、工作区状态时 |
 | [S-008] | `C:\Users\phrkn\.codex\logs_2.sqlite`（表 `logs`，只读打开） | 错误原文（502、`error sending request`、`git add -A` 被拒）、重试计数与时间 | 需要错误原文或链路行为证据时 |
@@ -61,3 +62,5 @@
 | [S-010] | 本会话命令输出：`Get-ChildItem`、`Get-FileHash`、`Get-Item`、`netstat -ano`、`Get-Process`、`Invoke-WebRequest http://127.0.0.1:15721/v1/models` | 本机文件哈希/时间戳、部署与备份清单、代理存活 | 核对「本机跑的是哪个版本」、备份与时间线时 |
 | [S-011] | `D:\coding\taskbardynamic\_handoff\2026-09-23-traffic-monitor.md`（本会话早先创建的中间交接稿，未跟踪） | 第一次交接摘要（已并入本文件；处置见 [Q-010]） | 需要追溯交接稿来源时 |
 | [S-012] | 本会话用户消息与文件生成/校验输出：拆分可行性、效率阈值、项目级持久化、最终执行授权、版权类型继承 | 拆分规则、阈值、`AGENTS.md`/`PROTOCOL.md`/索引结构与本次迁移结果 | 需要确认拆分依据、维护流程或迁移审计时 |
+| [S-013] | 用户当前消息（2026-09-23 21:2x）：恢复修改、三项修复、逐项 commit、全部验证后 push、完成后关机 | 本轮任务范围、提交顺序、验证与关机要求 | 需要确认本轮授权与验收口径时 |
+| [S-014] | 本轮命令输出：`git status/log/show`、四个配置 Rebuild、Release x64 `/analyze`、`Get-FileHash` | 提交哈希、构建结果、静态分析、产物哈希、MSB6001 规避验证 | 核对提交、构建证据与本地产物时 |

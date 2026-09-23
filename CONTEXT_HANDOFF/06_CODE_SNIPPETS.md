@@ -112,3 +112,39 @@ v1.2.1  latest=True  tag→261213e
 - 原文：
   - 「你现在暂停原任务，执行一次"长对话上下文压缩与交接"。唯一目标：从本项目的全部可见上下文中，提取对后续工作仍然重要的信息，去重、分类、消歧并压缩，然后写入：D:\coding\taskbardynamic\CONTEXT\_HANDOFF.md」
   - 「不要一下子构建完成，要逐步构建，防止上下文爆炸导致这个对话没法完成任务。」
+
+- 片段 ID：P-008
+- 来源：提交 `3a653a8`（`DynamicBase.h/.cpp`、`DynamicData.h/.cpp`、`TaskBarDynamic.cpp`）
+- 用途：绘图窗口不得再依赖本地 `SYSTEMTIME`，避免系统时间调整污染历史极值
+- 原文（要点）：
+```cpp
+using Clock = std::chrono::steady_clock;
+using Stamp = Clock::time_point;
+void DynamicBase<T>::PutInValue() {
+    const Stamp now = Clock::now();
+    // ...
+}
+
+struct DynamicInfo {
+    std::wstring label_;  // 原拼写 lable_ 已废弃
+};
+```
+
+- 片段 ID：P-009
+- 来源：提交 `f47e36c`（`config.cpp`、`PrimoCache.cpp`、README）
+- 用途：速率未就绪时必须显示 `--`，不能展示默认 0 或空闲前的旧值
+- 原文（要点）：
+```cpp
+std::atomic<bool> g_primo_rate_valid{ false };
+g_primo_rate_valid.store(snapshot.rate_valid);
+
+void SetPrimoSpeed(std::wstring& text, unsigned long long value) {
+    if (!g_primo_valid.load() || !g_primo_rate_valid.load()) {
+        text = L"--";
+        return;
+    }
+    SetNetSpeed(text, value);
+}
+
+// 进入空闲及重新建立基准时发布默认快照：valid=true, rate_valid=false
+```
