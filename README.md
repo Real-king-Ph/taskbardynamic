@@ -350,7 +350,7 @@ DynamicWindow::DynamicWindow()
 | --- | --- | --- |
 | `name_` | `std::wstring` | 显示项名称，出现在主程序的显示项列表里 |
 | `id_` | `std::wstring` | 显示项唯一 ID，主程序据此保存用户设置，**不要随意修改** |
-| `lable_` | `std::wstring` | 显示在数值前面的标签，如 `↑:`、`CPU:` |
+| `label_` | `std::wstring` | 显示在数值前面的标签，如 `↑:`、`CPU:` |
 | `value_sample_` | `std::wstring` | 数值示例文本，主程序按它的长度预留显示宽度 |
 | `draw_graph_` | `int` | 是否绘制资源占用图：`1` 绘制，`0` 不绘制 |
 | `get_data_` | `std::function<T(const MonitorInfo&)>` | 从主程序推送的监控数据里取出原始值 |
