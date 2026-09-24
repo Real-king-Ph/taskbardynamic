@@ -20,8 +20,8 @@
 - [A-002] [P0] [已确认] 项目文档 `README.md`
   - 绝对路径：`D:\coding\taskbardynamic\README.md`
   - 用途：功能说明、编译、安装、显示项、工作原理、更新日志
-  - 当前状态：24,516 字节；L414/L416 已修正为 v1.2.1 已发布、Latest、标签 `261213e`；异常规则新增“速率未就绪显示 `--`”
-  - 版本 / commit / hash：`517cdd7` + `f47e36c` + `0c81e41`
+  - 当前状态：已增加 `v1.2.2` 更新日志；`v1.2.1` 发布说明保留但不再声称 Latest；异常规则包含“速率未就绪显示 `--`”
+  - 版本 / commit / hash：待 `v1.2.2` 发布提交
   - 如何使用：改动后与源码一起提交；文档口径必须与实现/发布状态一致
   - 来源：[S-005]、[S-007]
 
@@ -36,8 +36,8 @@
 - [A-004] [P0] [已确认] PrimoCache 实现 `taskbardynamic/PrimoCache.cpp`
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\PrimoCache.cpp`
   - 用途：`RxpccSource`（定位/权限检测/进程调用/文本解析）+ 后台采样线程 + 增量计算
-  - 当前状态：17,606 字节；空闲/重新建立基准时会发布“速率未就绪”快照
-  - 版本 / commit / hash：`f47e36c`
+  - 当前状态：18,283 字节；新增解析失败标志与 `uint64_t` 溢出检查，纳入 `v1.2.2` 候选
+  - 版本 / commit / hash：待 `v1.2.2` 发布提交
   - 如何使用：解析与采样行为改动在此；改后必须跑解析器用例
   - 来源：[S-006]
 
@@ -53,18 +53,18 @@
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\TaskBarDynamic.cpp`（2,258 字节）、`TaskBarDynamic.h`、`dllmain.cpp`
   - 用途：`ITMPlugin` 实现、单例、显示项注册、`GetInfo()`（名称/描述/作者/版权/版本）、DLL 入口
   - 当前状态：`DataRequired()` 不再获取本地 `SYSTEMTIME`，只触发各显示项用单调时钟推进窗口
-  - 版本 / commit / hash：`TMI_VERSION` 当前为 `v1.2.1`
+  - 版本 / commit / hash：`TMI_VERSION` 当前为 `v1.2.2`
   - 如何使用：版本号、插件元信息在此文件
   - 来源：[S-006]、[S-007]
 
 - [A-007] [P1] [已确认] 构建产物（本地）
   - 绝对路径与当前哈希（2026-09-23 21:53 实测）：
-    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 70,656 B / `01F685774CB5F8CE9CEC5BA6559E158EB28D0CBE5EED31CB3861B5DF2BE2CC56` / 21:53:51
-    - `D:\coding\taskbardynamic\Release\taskbardynamic-x86.dll` — 65,536 B / `EED4E5F74DE7B403E1DDACB8A980B4FF400489700A9B0ED1FD6B28796FB98800` / 21:37:50
-    - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 771,072 B / `C47979DEB66A1FA4C33BE56C3AFDA504595B2C14FF92032B30C06F35C23D005B` / 21:37:40
-    - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 576,512 B / `BDFA69D32CB9DBEE9B6C9DB24422511BFBEBC7C56146E342CC4173C0D9C7DD6C` / 21:37:43
+    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 71,168 B / `01FD0257419E29DBCD57CC87A4DA51D57CD8512B27AFEC11891742935443FEBF` / 2026-09-24 10:43:28
+    - `D:\coding\taskbardynamic\Release\taskbardynamic-x86.dll` — 66,048 B / `E87B3AD6042C0A0A843E3F8168FB8B0F33885CAD7C1E5D00B81FABFF63E645BD` / 10:42:26
+    - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 771,584 B / `E0D9905B5A69CEAB6DD6357CBD5290BB6341E99F44BA25BEF9DD65A07332D42C` / 10:42:18
+    - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 577,024 B / `B6225E76D6EE0913621B89B45E2562E7D4AE279DABE39E44DA099F7A115FDB27` / 10:42:22
   - 用途：部署到 TrafficMonitor `plugins`、上传 Release 附件
-  - 当前状态：包含本轮三个修复，**尚未部署、尚未作为新 Release 发布**；与 v1.2.1 发布附件预期不一致
+  - 当前状态：`v1.2.2` 发布候选已生成，尚未部署；将作为 GitHub Release 附件发布
   - 如何使用：部署/发布前先确认改动已提交，再重编译并比对 SHA256
   - 来源：[S-010]、[S-007]
 

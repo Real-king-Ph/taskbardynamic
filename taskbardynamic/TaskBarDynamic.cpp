@@ -40,7 +40,7 @@ const wchar_t* DynamicWindow::GetInfo(PluginInfoIndex index) {
 	case TMI_COPYRIGHT:
 		return L"Copyright (C) 2025-2026 Real-King-ph";
 	case TMI_VERSION:
-		return L"v1.2.1";
+		return L"v1.2.2";
 	case TMI_URL:
 		return L"https://github.com/Real-king-Ph/taskbardynamic";
 	default:

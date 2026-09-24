@@ -148,3 +148,20 @@ void SetPrimoSpeed(std::wstring& text, unsigned long long value) {
 
 // 进入空闲及重新建立基准时发布默认快照：valid=true, rate_valid=false
 ```
+
+- 片段 ID：P-010
+- 来源：2026-09-24 工作区修改（尚未提交）
+- 用途：`rxpcc` 字段缺失、非法值或溢出时必须让本次采样失败，不能静默解析为 0
+- 原文（要点）：
+```cpp
+bool ParseFirstNumber(const std::string& text, std::uint64_t& value) noexcept;
+
+constexpr std::uint64_t kMax = static_cast<std::uint64_t>(-1);
+if (!ParseFirstNumber(valueText, parsed) || parsed > kMax - result.total_read) {
+    return false;
+}
+
+if (!sawTotalRead || !sawCachedRead) {
+    return false;
+}
+```

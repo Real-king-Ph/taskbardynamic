@@ -27,6 +27,7 @@
     - PrimoCache 未中速度 `PC_MISS_SPD`，标签 `未中:`
     - PrimoCache 命中率 `PC_HIT_RATE`，标签 `命中率:`（`DynamicInfo<float>`）
   - `PrimoCacheCounters{ total_read, cached_read }`；`PrimoCacheSnapshot{ valid, rate_valid, hit_rate_valid, ... }`。速度只在 `valid && rate_valid` 时显示，命中率另要求 `hit_rate_valid`。
+  - `ParseFirstNumber` 返回显式成功标志并检查单值 `uint64_t` 溢出；`ParseCounters` 必须同时找到可解析的 `Total Read` 与 `Cached Read`，多卷累加同样检查溢出。任一异常返回 false，不发布 0 值快照。
   - 抽象接口 `IPrimoCacheSource::Sample(...)`；实现 `RxpccSource`；单例 `PrimoCacheMonitor`（`Instance()` / `Probe()` / `Snapshot()` / `NotifyQueried()` / `RequestStop()`）；显示项类 `PrimoCacheItem<T>` 在被绘制时上报 `NotifyQueried()`。
   - DLL 只导出 `TMPluginGetInstance`（主程序用 `GetProcAddress` 查找）。
 - 来源：[S-006]（config.cpp L126-L190、PrimoCache.h、README「显示项」表）、[S-002]
@@ -37,7 +38,7 @@
 - 内容：
   - 开发环境：Windows 10/11；Visual Studio 2022（v143）或 VS2022 生成工具；C++17；`/MP` 多处理器编译；`/permissive-`；源码 UTF-8 with BOM（`PluginInterface.h` 保持 GBK 原样）。
   - 解决方案平台名：`x64` / `x86`（工程文件内为 `x64` / `Win32`）。
-  - 运行环境：宿主 `C:\tool\TrafficMonitor\`；插件目录 `plugins\`；PrimoCache 4.4.0（`rxpcc.exe` 需管理员权限）；TrafficMonitor 需提权才能让 PrimoCache 显示项注册。
+  - 运行环境：宿主 `C:\tool\TrafficMonitor\`；插件目录 `plugins\`；PrimoCache 4.4.0（`rxpcc.exe` 需管理员权限）；TrafficMonitor 需提权才能让 PrimoCache 显示项注册；当前源码版本为 `v1.2.2`。
   - 用户配置 `C:\tool\TrafficMonitor\config.ini`：**助手不得修改**（[C-002]）；相关键 `tbar_display_item`、`plugin_display_item`、`PC_MISS_SPD`（见 [Q-005]）。
   - 模型/中转环境：Codex 使用 `model_provider = "custom"`（opencode_go，`https://opencode.ai/zen/go/v1`），本机有 CC Switch 代理 `127.0.0.1:15721`；旧会话在该链路上失败（[R-001]）。
 - 来源：[S-005]、[S-006]（`taskbardynamic.vcxproj`、`taskbardynamic.sln`）、[S-008]/[S-010]（config.toml 与代理）

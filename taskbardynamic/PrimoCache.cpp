@@ -141,17 +141,26 @@ std::wstring DetectInstallDirectory()
 	// 3) 默认安装路径
 	return L"C:\\Program Files\\PrimoCache";
 }
-/// 取字符串里第一个整数（跳过前导空白，忽略千位分隔符）
-std::uint64_t ParseFirstNumber(const std::string& text)
+/// 取字符串里第一个整数（跳过前导空白，忽略千位分隔符）；失败时返回 false
+bool ParseFirstNumber(const std::string& text, std::uint64_t& value) noexcept
 {
-	std::uint64_t value = 0;
+	value = 0;
 	bool started = false;
+	constexpr std::uint64_t kMax = static_cast<std::uint64_t>(-1);
+
 	for (const char ch : text) {
 		if (ch >= '0' && ch <= '9') {
-			value = value * 10 + static_cast<std::uint64_t>(ch - '0');
+			const std::uint64_t digit = static_cast<std::uint64_t>(ch - '0');
+			if (value > (kMax - digit) / 10) {
+				return false;           // 溢出：该字段不是有效的累计计数
+			}
+			value = value * 10 + digit;
 			started = true;
 		}
 		else if (ch == ',') {
+			if (!started) {
+				return false;           // 数字不能以千位分隔符开头
+			}
 			continue;                   // 千位分隔符：数字中间也要忽略，否则 210,726,629,888 会被截断成 210
 		}
 		else if (started) {
@@ -161,10 +170,11 @@ std::uint64_t ParseFirstNumber(const std::string& text)
 			continue;
 		}
 		else {
-			return 0;                   // 遇到其它字符说明不是数字
+			return false;               // 遇到其它字符说明不是数字
 		}
 	}
-	return value;
+
+	return started;
 }
 
 /// 把「区间增量 / 秒」换算为速率（字节/秒），并限制在合理范围
@@ -189,6 +199,8 @@ bool ParseCounters(const std::string& text, PrimoCacheCounters& counters)
 {
 	PrimoCacheCounters result;
 	bool sawTotalRead = false;
+	bool sawCachedRead = false;
+	constexpr std::uint64_t kMax = static_cast<std::uint64_t>(-1);
 
 	std::size_t pos = 0;
 	while (pos < text.size()) {
@@ -214,16 +226,25 @@ bool ParseCounters(const std::string& text, PrimoCacheCounters& counters)
 
 		const std::string value = line.substr(colon + 1);
 		if (label == "Total Read") {
-			result.total_read += ParseFirstNumber(value);
+			std::uint64_t parsed = 0;
+			if (!ParseFirstNumber(value, parsed) || parsed > kMax - result.total_read) {
+				return false;
+			}
+			result.total_read += parsed;
 			sawTotalRead = true;
 		}
 		else if (label == "Cached Read") {
-			result.cached_read += ParseFirstNumber(value);
+			std::uint64_t parsed = 0;
+			if (!ParseFirstNumber(value, parsed) || parsed > kMax - result.cached_read) {
+				return false;
+			}
+			result.cached_read += parsed;
+			sawCachedRead = true;
 		}
 
 	}
 
-	if (!sawTotalRead) {
+	if (!sawTotalRead || !sawCachedRead) {
 		return false;
 	}
 	counters = result;
