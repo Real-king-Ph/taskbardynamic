@@ -12,8 +12,8 @@
 - [A-001] [P0] [已确认] 代码仓库根目录
   - 绝对路径：`D:\coding\taskbardynamic`
   - 用途：全部源码、工程、README、构建输出
-  - 当前状态：存在；本轮从 `c27dafc` 依次提交 `517cdd7`、`3a653a8`、`f47e36c`、`0c81e41`，已推送远端；HANDOFF 更新提交随后加入
-  - 版本 / commit / hash：基线 `c27dafc505987d4b23501aff9ebed9e9f36e62d1`
+  - 当前状态：存在；`v1.2.2` 发布提交 `4e0c900dc04a5b084d49bb575f519b9ae3048c52` 已推送，发布记录提交随后加入
+  - 版本 / commit / hash：`4e0c900dc04a5b084d49bb575f519b9ae3048c52`
   - 如何使用：作为所有命令的工作目录（`cd D:\coding\taskbardynamic`）
   - 来源：[S-013]/[S-014]
 
@@ -21,7 +21,7 @@
   - 绝对路径：`D:\coding\taskbardynamic\README.md`
   - 用途：功能说明、编译、安装、显示项、工作原理、更新日志
   - 当前状态：已增加 `v1.2.2` 更新日志；`v1.2.1` 发布说明保留但不再声称 Latest；异常规则包含“速率未就绪显示 `--`”
-  - 版本 / commit / hash：待 `v1.2.2` 发布提交
+  - 版本 / commit / hash：`4e0c900`
   - 如何使用：改动后与源码一起提交；文档口径必须与实现/发布状态一致
   - 来源：[S-005]、[S-007]
 
@@ -37,7 +37,7 @@
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\PrimoCache.cpp`
   - 用途：`RxpccSource`（定位/权限检测/进程调用/文本解析）+ 后台采样线程 + 增量计算
   - 当前状态：18,283 字节；新增解析失败标志与 `uint64_t` 溢出检查，纳入 `v1.2.2` 候选
-  - 版本 / commit / hash：待 `v1.2.2` 发布提交
+  - 版本 / commit / hash：`4e0c900`
   - 如何使用：解析与采样行为改动在此；改后必须跑解析器用例
   - 来源：[S-006]
 
@@ -53,7 +53,7 @@
   - 绝对路径：`D:\coding\taskbardynamic\taskbardynamic\TaskBarDynamic.cpp`（2,258 字节）、`TaskBarDynamic.h`、`dllmain.cpp`
   - 用途：`ITMPlugin` 实现、单例、显示项注册、`GetInfo()`（名称/描述/作者/版权/版本）、DLL 入口
   - 当前状态：`DataRequired()` 不再获取本地 `SYSTEMTIME`，只触发各显示项用单调时钟推进窗口
-  - 版本 / commit / hash：`TMI_VERSION` 当前为 `v1.2.2`
+  - 版本 / commit / hash：`TMI_VERSION = v1.2.2`（`4e0c900`）
   - 如何使用：版本号、插件元信息在此文件
   - 来源：[S-006]、[S-007]
 
@@ -64,7 +64,7 @@
     - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 771,584 B / `E0D9905B5A69CEAB6DD6357CBD5290BB6341E99F44BA25BEF9DD65A07332D42C` / 10:42:18
     - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 577,024 B / `B6225E76D6EE0913621B89B45E2562E7D4AE279DABE39E44DA099F7A115FDB27` / 10:42:22
   - 用途：部署到 TrafficMonitor `plugins`、上传 Release 附件
-  - 当前状态：`v1.2.2` 发布候选已生成，尚未部署；将作为 GitHub Release 附件发布
+  - 当前状态：`v1.2.2` 已作为 GitHub Release 附件发布并逐字节校验；尚未部署到本机
   - 如何使用：部署/发布前先确认改动已提交，再重编译并比对 SHA256
   - 来源：[S-010]、[S-007]
 
@@ -89,11 +89,12 @@
 
 - [A-010] [P1] [已确认] GitHub Releases（发布产物）
   - 绝对路径/URL：
-    - `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.1`（Latest；附件 x64 `03338161…` 71,168B、x86 `ff6d7402…` 64,512B）
+    - `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.2`（Latest；目标 `4e0c900`；附件 x64 `01FD0257…` 71,168B、x86 `E87B3AD6…` 66,048B）
+    - `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.1`（附件 x64 `03338161…` 71,168B、x86 `ff6d7402…` 64,512B）
     - `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2`（附件为修复前构建：x64 `5c8ca5bc…` 71,680B、x86 `d1f72363…` 65,536B）
     - `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.1`（x64 `efc09572…` 30,720B、x86 `e96fb785…` 26,112B）
   - 用途：用户下载安装；附件与本地构建做哈希比对
-  - 当前状态：共 3 个 Release，v1.2.1 为 Latest
+  - 当前状态：共 4 个 Release，`v1.2.2` 为 Latest
   - 如何使用：发布用 `gh release create` / `gh release upload`（需要 GitHub 凭据；历史实现通过 `git credential fill` 取得 token）
   - 来源：[S-002]（旧会话 17:01 回复）
 

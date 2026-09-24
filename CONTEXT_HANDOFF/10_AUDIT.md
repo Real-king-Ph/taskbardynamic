@@ -77,11 +77,13 @@
 - 验证：15 个临时定向测试全部通过（正常值、千位分隔符、缺字段、非法值、前导逗号、空白、零值、最大值、单值/累加溢出）；Debug/Release × x64/x86 全量重建 0 warning / 0 error；Release x64 `/analyze` 0 告警。
 - 状态：代码和 HANDOFF 修改当前未提交；未部署、未发布，未触碰用户 `config.ini`。
 
-## 16.5 v1.2.2 发布前审计（2026-09-24）
+## 16.5 v1.2.2 发布审计（2026-09-24）
 
 - 发布授权：用户明确要求生成新 DLL、提交并推送、发布 `V1.2.2`。
 - 版本：`TaskBarDynamic.cpp TMI_VERSION = v1.2.2`；README 已增加 `v1.2.2` 更新日志，并移除 v1.2.1 的 Latest 描述。
 - 代码范围：此前未发布的速率就绪、单调时钟、`label_` 拼写修复，以及本次 `ParseCounters` fail-fast/溢出加固。
 - 验证：Debug/Release × x64/x86 全量构建 0 warning / 0 error；Release x64 `/analyze` 0 告警；解析器 15/15。
 - 候选附件：x64 71,168 B / `01FD0257…`；x86 66,048 B / `E87B3AD6…`。
-- 发布前状态：尚未提交、推送或创建 Release；发布后需补记 commit/tag/Release URL 与附件复核结果。
+- 发布结果：提交 `4e0c900` 已推送；GitHub Release `v1.2.2` 为 Latest，目标提交一致；Release URL 为 `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.2`。
+- 附件复核：x64 71,168 B / `01FD0257…`、x86 66,048 B / `E87B3AD6…`，从 GitHub 下载后 SHA256 与本地构建完全一致。
+- 部署状态：未部署到本机 TrafficMonitor；未修改用户 `config.ini`，未执行 UAC 操作。
