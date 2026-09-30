@@ -101,5 +101,5 @@
 - 范围：`TaskBarDynamic.h/.cpp`、`config.h/.cpp`、`README.md`；未改动 `PrimoCache.h/.cpp` 的采样核心。
 - 实现：新增 `ITMPlugin::GetTooltipInfo()`；去重模式显示总读取、未中率、状态；不可用/等待/失败/无读取有独立文案；悬停查询调用 `NotifyQueried()` 维持惰性采样。
 - 验证：Debug/Release × x64/x86 构建均 0 warning / 0 error；Release x64 `/analyze` 0 告警；`git diff --check` 通过；Release x64 DLL 中确认存在新增中文提示字符串。
-- 状态：已提交到本地；未推送、未发布、未部署；未编辑用户 `C:\tool\TrafficMonitor\config.ini`。
+- 状态：已提交到本地 `07d6698`；未推送、未发布、未部署；未编辑用户 `C:\tool\TrafficMonitor\config.ini`。
 - 完整性：目标、决策、事实、技术细节、代码片段、时间线来源、下一步和索引均已同步。
