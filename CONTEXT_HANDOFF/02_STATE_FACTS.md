@@ -19,9 +19,9 @@
   - 依据：四个提交均已本地验证并推送成功；HANDOFF 更新提交随后推送
   - 是否可能变化：是（推送与后续加固会产生新提交）
 
-- [F-003] [P1] [已确认] Release 现状（2026-09-24）：GitHub 上有 4 个 Release —— `v1.1`、`v1.2`、`v1.2.1`、`v1.2.2`，其中 `v1.2.2` 为 **Latest**，目标提交 `4e0c900`；x64 71,168 B / `01FD0257…`、x86 66,048 B / `E87B3AD6…`，远程下载后 SHA256 与本地产物一致。
-  - 来源：GitHub API 与本轮下载校验（[S-016]）
-  - 依据：Release URL `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.2`
+- [F-003] [P1] [已确认] Release 现状（2026-09-30）：GitHub 上有 5 个 Release —— `v1.1`、`v1.2`、`v1.2.1`、`v1.2.2`、`v1.2.3`，其中 `v1.2.3` 为 **Latest**，标签/发布提交 `7c51fa9`；x64 75,264 B / `A2CAB605…`、x86 70,144 B / `22EF931E…`，GitHub API 附件 digest 与本地 SHA256 一致。
+  - 来源：GitHub API 与本地构建校验（[S-022]）
+  - 依据：Release URL `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.3`
   - 是否可能变化：是
 
 - [F-004] [P0] [已确认] 本机部署状态（2026-09-30 17:08）：`C:\tool\TrafficMonitor\plugins\taskbardynamic-x64.dll` 已更新为 PrimoCache 悬浮提示开发构建，74,752 字节 / `5A570D1851477861C05B7C83CA4C134A9D0008452AF17EDC212288CEC2CAF148`；TrafficMonitor PID 113940 已启动。替换前的 v1.2.2 文件备份为 `taskbardynamic.v1.2.2-20260930-170809.dll.bak`，旧 v1.2.1 备份继续保留。
@@ -129,10 +129,15 @@
   - 是否可能变化：是（后续版本与部署可能更新）
   - 部署补充：助手未编辑 `C:\tool\TrafficMonitor\config.ini`；TrafficMonitor 重启后由主程序自行刷新了该文件 mtime（2026-09-24 11:39:53，7,564 B）。
 
-- [F-025] [P1] [已完成] 2026-09-30 PrimoCache 悬浮提示已实现、提交并部署：`DynamicWindow` 覆盖 `ITMPlugin::GetTooltipInfo()`，由构造函数和 `DataRequired()` 刷新缓存文本，悬停查询时调用 `NotifyQueried()`；去重模式显示 `总读取`、`未中率`、`状态`，不可用时显示原因，采样未就绪/失败/近期无读取分别有明确文案。改动文件为 `TaskBarDynamic.h/.cpp`、`config.h/.cpp`，并同步更新 `README.md`；未修改 PrimoCache 采样核心与用户 `config.ini`。
+- [F-025] [P1] [已完成] 2026-09-30 PrimoCache 悬浮提示已实现、部署并随 `v1.2.3` 发布：`DynamicWindow` 覆盖 `ITMPlugin::GetTooltipInfo()`，由构造函数和 `DataRequired()` 刷新缓存文本，悬停查询时调用 `NotifyQueried()`；去重模式显示 `总读取`、`未中率`、`状态`，不可用时显示原因，采样未就绪/失败/近期无读取分别有明确文案。改动文件为 `TaskBarDynamic.h/.cpp`、`config.h/.cpp`，并同步更新 `README.md`；未修改 PrimoCache 采样核心与用户 `config.ini`。
   - 来源：用户当前指令 + 源码差异、四配置 MSBuild、Release x64 `/analyze`、DLL 字符串检查和 `git diff --check`（[S-018]）
   - 依据：四个构建配置均 0 warning / 0 error；Release x64 `/analyze` 0 告警；Release x64 DLL 中确认存在 PrimoCache tooltip 中文文案
-  - 是否可能变化：是；当前已提交到本地 `07d6698` 并部署到本机，未推送、未发布
+  - 是否可能变化：是；提交 `07d6698` 已推送并随 `v1.2.3` / `7c51fa9` 发布
+
+- [F-026] [P0] [已完成] `v1.2.3` 正式发布：版本源和 README 更新为 `v1.2.3`；Debug/Release × x64/x86 全部 0 warning / 0 error；Release x64 `/analyze` 0 告警；提交 `7c51fa9` 已推送，标签 `v1.2.3` 与 GitHub Release 为 Latest。
+  - 来源：用户发布指令 + 本地构建/分析/Git/GitHub API 输出（[S-022]）
+  - 附件：x64 75,264 B / `A2CAB605E803E0A6FB0E8D9FB1B2D34354B16CA07E7C1296140E8CF65D633DEB`；x86 70,144 B / `22EF931ED1F16C6AB8F987B1B243AC6F3827635D678DD823A038838BF4C80644`
+  - 是否可能变化：否（除非发布资产被后续修改）
 ## 8. 当前进展与当前状态
 
 - 最后一次完成的步骤：用户恢复工作区后，依次完成并提交：
@@ -141,11 +146,11 @@
   3) `f47e36c`：`PrimoCacheSnapshot::rate_valid` 传递到显示层；启动/恢复显示尚未完成两次采样时，速度显示 `--`。
 
 - 最后已知可用状态（可用 = 能正常显示与回复）：
-  - 本机 TrafficMonitor 已运行包含 PrimoCache 悬浮提示的开发构建（`TMI_VERSION = v1.2.2`，哈希 `5A570D18…`）——[F-004]/[F-025]。
+  - 本机 TrafficMonitor 运行的是包含 PrimoCache 悬浮提示的开发构建（`TMI_VERSION = v1.2.2`，哈希 `5A570D18…`）；正式版 `v1.2.3` 尚未部署到本机——[F-004]/[F-026]。
   - 本轮源码四个构建配置与 Release x64 静态分析全部通过——[F-022]。
   - 同项目下小上下文会话可用于继续工作——[F-017]。
 
-- 当前正在进行的步骤：PrimoCache 悬浮提示已提交到本地 `07d6698` 并部署到本机；文档一致性修复已提交到本地；均未推送、发布，等待用户实机验收。
+- 当前正在进行的步骤：`v1.2.3` 已提交、推送并发布；本机仍运行开发构建，是否部署正式版等待用户决定。
 
 - 当前阻塞点：
   1) B4-b 命中率最小样本门槛未拍板（[Q-003]）。
@@ -161,7 +166,7 @@
 
 - 下一步最安全动作：
   1) 用户在 TrafficMonitor 中验收 [G-007]/[F-025] 的悬浮提示。
-  2) 未获明确授权前不推送、不发布；若宿主再次出现硬件监控弹窗，按 [R-015] 处理。
+  2) 如需本机与正式版一致，部署 `v1.2.3` 的 x64 附件；若宿主出现硬件监控弹窗，按 [R-015] 处理。
   3) 不要碰 `C:\tool\TrafficMonitor\config.ini`。
 
 - 来源：以上综合 [S-002]、[S-008]、[S-010]、[S-013]、[S-014]

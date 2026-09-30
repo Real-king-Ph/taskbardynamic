@@ -442,12 +442,19 @@ taskbardynamic/
 
 ### v1.2.3
 
-本版本新增 PrimoCache 专用悬浮提示，并同步修正命中率窗口和发布状态文档。
+本版本新增 PrimoCache 专用悬浮提示，并同步修正命中率窗口和发布状态文档。已作为正式版发布（GitHub Release `v1.2.3`，Latest，标签指向 `7c51fa9`）。
 
 - 新增 PrimoCache 悬浮提示：显示总读取速度、未中率与状态，不可用时显示具体原因；
 - 悬浮提示查询会维持惰性采样，不会在 UI 线程调用 `rxpcc`；
 - 修正文档中把命中率写成严格“30 秒窗口”的问题，明确当前实现为最近 6 次成功采样；
 - 插件版本号更新为 `v1.2.3`。
+
+**验证**
+
+- Debug/Release × x64/x86：全部 `0 warning / 0 error`；
+- Release x64 MSVC `/analyze`：0 告警；
+- x64 附件：75,264 B / `A2CAB605E803E0A6FB0E8D9FB1B2D34354B16CA07E7C1296140E8CF65D633DEB`；
+- x86 附件：70,144 B / `22EF931ED1F16C6AB8F987B1B243AC6F3827635D678DD823A038838BF4C80644`。
 
 ### v1.2.2
 

@@ -126,3 +126,13 @@
 - 部署：备份原 v1.2.2 DLL 为 `taskbardynamic.v1.2.2-20260930-170809.dll.bak`；替换目标文件并校验新哈希一致。
 - 运行态：TrafficMonitor PID 113940 已启动；开发构建 `TMI_VERSION` 仍为 `v1.2.2`。
 - 约束：未修改 `C:\tool\TrafficMonitor\config.ini`；未推送、未发布；宿主硬件监控异常风险见 [R-015]。
+
+## 16.11 v1.2.3 发布审计（2026-09-30）
+
+- 授权：用户明确要求发布新版本 `V1.2.3`，并确认不覆盖已发布的 `v1.2.2`。
+- 版本：`TaskBarDynamic.cpp TMI_VERSION = v1.2.3`；README 新增 v1.2.3 更新日志。
+- 验证：Debug/Release × x64/x86 全部 0 warning / 0 error；Release x64 `/analyze` 0 告警。
+- 提交与标签：提交 `7c51fa9` 推送到 `origin/master`；标签 `v1.2.3` 推送成功。
+- Release：GitHub Release `v1.2.3` 创建并设为 Latest；x64 75,264 B / `A2CAB605…`、x86 70,144 B / `22EF931E…`，远端附件 digest 与本地 SHA256 一致。
+- 部署：本机当前仍运行先前的 `5A570D18` 开发构建；正式 `v1.2.3` x64 尚未部署。
+- 约束：未修改 `C:\tool\TrafficMonitor\config.ini`；未覆盖 `v1.2.2` 标签或 Release。
