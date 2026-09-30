@@ -79,3 +79,10 @@
   - 影响：异常版本/被替换的 CLI 可能造成内存增长、误采或线程卡住。
   - 建议：限制累计输出大小，检查退出码，用 Job Object `KILL_ON_JOB_CLOSE` 管理进程树，必要时改用可超时 I/O。
   - 来源：当前源码审计（[S-013]）
+
+- [R-015] [P1] [已确认] 宿主 TrafficMonitor 1.8.6 的硬件监控可高频弹出“获取硬件监控数据时出现了错误！”：该文案来自主程序 `IDS_HARDWARE_INFO_ACQUIRE_FAILED_ERROR`，不是 `taskbardynamic` 插件。
+  - 本机证据：`hardware_monitor_item = 15`（CPU/GPU/硬盘/主板全开）、`monitor_time_span = 1000`；主程序每次轮询调用 `GetHardwareInfo()`，SEH 或 LibreHardwareMonitor 的 .NET 异常均立即 `AfxMessageBox`，持续异常即反复弹窗。
+  - 常见触发：开机自启初始化时序、显卡驱动安装/更新、休眠恢复、独显被电源策略禁用或切换（如拔电）、传感器驱动冲突或异常状态。
+  - 影响：弹窗风暴会持续打断 UI；插件只消费主程序提供的数值，因此该提示不能由 `taskbardynamic` DLL 直接修复。
+  - 规避：先完全退出 TrafficMonitor（托盘退出或任务管理器结束）再启动；若复发，在“选项-常规设置-硬件监控”逐类禁用以定位异常传感器，通常优先排查 GPU；避免同时运行 HWiNFO、AIDA64、Afterburner、GPU-Z 等硬件监控。
+  - 来源：[S-020]；上游复现记录：issues #2000、#2255、#2334。

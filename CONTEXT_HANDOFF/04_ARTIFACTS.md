@@ -59,25 +59,26 @@
 
 - [A-007] [P1] [已确认] 构建产物（本地，含未发布 PrimoCache 悬浮提示）
   - 绝对路径与当前哈希（2026-09-30 实测）：
-    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 74,752 B / `06E7525EDBE187414846C47785A12626C9F29CEA2D088B25221DA959370D9579`
+    - `D:\coding\taskbardynamic\x64\Release\taskbardynamic-x64.dll` — 74,752 B / `5A570D1851477861C05B7C83CA4C134A9D0008452AF17EDC212288CEC2CAF148`
     - `D:\coding\taskbardynamic\Release\taskbardynamic-x86.dll` — 70,144 B / `90426C9D0B7D703208540BB59843B0ABBBC47E93569BFB91AE6F7113D5B58924`
     - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 778,240 B / `BC75E85071AC534420F19D670936BFE5A9E4F91C7237247976D44B598E2DFD7B`
     - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 582,144 B / `F0EA1F6EAFB595C97D78049E2D34FFD515D305C978DAC63CB45CB56FEBAECE69`
   - 用途：本地验证；以后发布或部署时必须基于明确提交重新构建
-  - 当前状态：当前本地构建包含 PrimoCache 悬浮提示；尚未发布、尚未部署。`v1.2.2` Release 附件见 [A-010]，本机实际生效文件见 [A-008]
+  - 当前状态：x64 Release 构建包含 PrimoCache 悬浮提示并已部署到本机；x64/x86 Debug 与 x86 Release 未部署；尚未发布。`v1.2.2` Release 附件见 [A-010]，本机实际生效文件见 [A-008]
   - 如何使用：部署/发布前先确认改动已提交，再重编译并比对 SHA256
   - 来源：[S-010]、[S-007]
 
 - [A-008] [P0] [已确认] 运行时部署位置与备份
   - 绝对路径：`C:\tool\TrafficMonitor\plugins\`
-    - `taskbardynamic-x64.dll` — 71,168 B / `01FD0257…` / 2026-09-24 10:43:28（= v1.2.2 发布附件，当前生效）
-    - `taskbardynamic.v1.2.1-20260924-113018.dll.bak` — 71,168 B / `03338161…`（v1.2.2 部署前备份，可回滚）
+    - `taskbardynamic-x64.dll` — 74,752 B / `5A570D18…` / 2026-09-30 17:04:18（PrimoCache 悬浮提示开发构建，当前生效）
+    - `taskbardynamic.v1.2.2-20260930-170809.dll.bak` — 71,168 B / `01FD0257…`（本次部署前备份，可回滚到 v1.2.2 发布版）
+    - `taskbardynamic.v1.2.1-20260924-113018.dll.bak` — 71,168 B / `03338161…`（更早的 v1.2.1 备份）
     - `taskbardynamic.v1.1.dll.bak` — 30,720 B / `EFC095724FBB5DF8…`
     - `taskbardynamic.primo-test.dll.bak` — 72,192 B / `589BBA62C31C26C7…`
     - `taskbardynamic.prev-test.dll.bak` — 71,680 B / `CB356C5989926D39…`
     - `taskbardynamic.20250617-022452.dll.bak` — 34,816 B / `981041D7628216C7…`（2025-06-17 原始版本）
   - 用途：运行中的插件与回滚依据
-  - 当前状态：生效版本 = v1.2.2；TrafficMonitor 运行进程 PID 5976 只加载新版插件
+  - 当前状态：生效文件 = PrimoCache 悬浮提示开发构建（`TMI_VERSION = v1.2.2`）；TrafficMonitor PID 113940 已启动
   - 如何使用：替换前先退出主程序（[R-005]）；不要删备份
   - 来源：[S-010]
 

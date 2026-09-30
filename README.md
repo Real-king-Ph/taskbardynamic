@@ -173,7 +173,7 @@ TMPluginGetInstance
 
 插件通过 `ITMPlugin::GetTooltipInfo()` 提供 PrimoCache 专用鼠标提示。第一版采用去重模式，只补充任务栏未显示的信息：
 
-> 该功能已提交到当前开发分支，但尚未发布到 GitHub Release，也尚未部署到本机 TrafficMonitor。
+> 该功能已提交到当前开发分支并部署到本机开发环境验证，但尚未发布到 GitHub Release。
 
 ```text
 PrimoCache
