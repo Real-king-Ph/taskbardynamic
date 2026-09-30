@@ -64,19 +64,20 @@
     - `D:\coding\taskbardynamic\x64\Debug\taskbardynamic-x64.dll` — 771,584 B / `E0D9905B5A69CEAB6DD6357CBD5290BB6341E99F44BA25BEF9DD65A07332D42C` / 10:42:18
     - `D:\coding\taskbardynamic\Debug\taskbardynamic-x86.dll` — 577,024 B / `B6225E76D6EE0913621B89B45E2562E7D4AE279DABE39E44DA099F7A115FDB27` / 10:42:22
   - 用途：部署到 TrafficMonitor `plugins`、上传 Release 附件
-  - 当前状态：`v1.2.2` 已作为 GitHub Release 附件发布并逐字节校验；尚未部署到本机
+  - 当前状态：`v1.2.2` 已作为 GitHub Release 附件发布并逐字节校验；x64 版本已部署并运行
   - 如何使用：部署/发布前先确认改动已提交，再重编译并比对 SHA256
   - 来源：[S-010]、[S-007]
 
 - [A-008] [P0] [已确认] 运行时部署位置与备份
   - 绝对路径：`C:\tool\TrafficMonitor\plugins\`
-    - `taskbardynamic-x64.dll` — 71,168 B / `03338161E4D25D39…` / 2026-09-23 16:23:16（= v1.2.1 发布附件，当前生效）
+    - `taskbardynamic-x64.dll` — 71,168 B / `01FD0257…` / 2026-09-24 10:43:28（= v1.2.2 发布附件，当前生效）
+    - `taskbardynamic.v1.2.1-20260924-113018.dll.bak` — 71,168 B / `03338161…`（v1.2.2 部署前备份，可回滚）
     - `taskbardynamic.v1.1.dll.bak` — 30,720 B / `EFC095724FBB5DF8…`
     - `taskbardynamic.primo-test.dll.bak` — 72,192 B / `589BBA62C31C26C7…`
     - `taskbardynamic.prev-test.dll.bak` — 71,680 B / `CB356C5989926D39…`
     - `taskbardynamic.20250617-022452.dll.bak` — 34,816 B / `981041D7628216C7…`（2025-06-17 原始版本）
   - 用途：运行中的插件与回滚依据
-  - 当前状态：生效版本 = v1.2.1
+  - 当前状态：生效版本 = v1.2.2；TrafficMonitor 运行进程 PID 5976 只加载新版插件
   - 如何使用：替换前先退出主程序（[R-005]）；不要删备份
   - 来源：[S-010]
 

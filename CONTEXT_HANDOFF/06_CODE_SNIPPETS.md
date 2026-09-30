@@ -165,3 +165,19 @@ if (!sawTotalRead || !sawCachedRead) {
     return false;
 }
 ```
+
+- 片段 ID：P-011
+- 来源：2026-09-30 本地提交（PrimoCache 悬浮提示）
+- 用途：PrimoCache 悬浮提示使用缓存文本，不在 UI 查询路径中执行阻塞采样
+- 原文（要点）：
+```cpp
+const wchar_t* DynamicWindow::GetTooltipInfo() {
+    PrimoCacheMonitor::Instance().NotifyQueried();
+    return primoTooltipText_.c_str();
+}
+
+std::wstring text = L"PrimoCache\n总读取    "
+    + config::FormatSpeed(snapshot.read_speed) + L"\n";
+text += L"未中率    " + config::FormatPercent(100.0 - snapshot.hit_rate_percent)
+    + L"\n状态      正常";
+```

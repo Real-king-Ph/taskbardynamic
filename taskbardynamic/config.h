@@ -14,6 +14,10 @@ namespace config {
 	void SetNetSpeed(std::wstring& text, unsigned long long value);
 	void SetCpuTemperature(std::wstring& text, int value);
 
+	// 共用格式化：任务栏显示项与悬浮提示保持同样的单位和小数位
+	std::wstring FormatSpeed(unsigned long long bytes_per_second);
+	std::wstring FormatPercent(double percent);
+
 	// PrimoCache 取数（数据来自 PrimoCacheMonitor 的后台采样快照）
 	unsigned long long GetPrimoHitSpeed(const ITMPlugin::MonitorInfo& monitor_info);
 	unsigned long long GetPrimoMissSpeed(const ITMPlugin::MonitorInfo& monitor_info);

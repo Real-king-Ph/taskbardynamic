@@ -45,20 +45,8 @@ namespace config {
 		}
 	}
 
-	// get_data_
-	unsigned long long GetUpSpeed(const ITMPlugin::MonitorInfo& monitor_info) {
-		return monitor_info.up_speed;
-	}
-	unsigned long long GetDownSpeed(const ITMPlugin::MonitorInfo& monitor_info) {
-		return monitor_info.down_speed;
-	}
-	int GetCpuTemperature(const ITMPlugin::MonitorInfo& monitor_info) {
-		return monitor_info.cpu_temperature;
-	}
-
-	// set_data_
-	void SetNetSpeed(std::wstring& text, unsigned long long value) {
-		const double bytes = static_cast<double>(value);
+	std::wstring FormatSpeed(unsigned long long bytes_per_second) {
+		const double bytes = static_cast<double>(bytes_per_second);
 
 		// 按数量级自动选择单位，避免大流量时数值部分被截断成无意义的字符串
 		double scaled = bytes;
@@ -77,7 +65,29 @@ namespace config {
 			unit = L"KB/s";
 		}
 
-		text = FormatValue(scaled) + unit;
+		return FormatValue(scaled) + unit;
+	}
+
+	std::wstring FormatPercent(double percent) {
+		wchar_t buffer[32]{};
+		swprintf_s(buffer, L"%.1f%%", percent);
+		return buffer;
+	}
+
+	// get_data_
+	unsigned long long GetUpSpeed(const ITMPlugin::MonitorInfo& monitor_info) {
+		return monitor_info.up_speed;
+	}
+	unsigned long long GetDownSpeed(const ITMPlugin::MonitorInfo& monitor_info) {
+		return monitor_info.down_speed;
+	}
+	int GetCpuTemperature(const ITMPlugin::MonitorInfo& monitor_info) {
+		return monitor_info.cpu_temperature;
+	}
+
+	// set_data_
+	void SetNetSpeed(std::wstring& text, unsigned long long value) {
+		text = FormatSpeed(value);
 	}
 
 	void SetCpuTemperature(std::wstring& text, int value) {
@@ -119,9 +129,7 @@ namespace config {
 			return;
 		}
 
-		wchar_t buffer[32]{};
-		swprintf_s(buffer, L"%.1f%%", static_cast<double>(value));
-		text = buffer;
+		text = FormatPercent(static_cast<double>(value));
 	}
 
 	// config

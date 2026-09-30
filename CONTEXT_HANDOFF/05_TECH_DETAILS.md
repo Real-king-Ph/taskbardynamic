@@ -81,6 +81,16 @@
 预期结果：可查到 `codex_core::responses_retry`、`codex_http_client::client` 等记录
 注意事项：用只读模式打开，避免与应用写锁冲突
 
+### PrimoCache 悬浮提示（2026-09-30）
+
+- 接口：`DynamicWindow` 新增 `const wchar_t* GetTooltipInfo() override`；返回值指向成员 `std::wstring primoTooltipText_`，生命周期由插件单例持有。
+- 刷新：构造函数在 `Probe()` 后先刷新一次；`DataRequired()` 每次周期回调后刷新。`GetTooltipInfo()` 不执行 `rxpcc`、不申请锁，也不做阻塞操作，只调用 `NotifyQueried()` 并返回缓存文本。
+- 内容：去重模式显示 `总读取`、`未中率`、`状态`；不可用时显示 `PrimoCacheMonitor::Reason()`；`valid=false` 显示“采样失败”，`rate_valid=false` 显示“等待采样”，`hit_rate_valid=false` 时未中率显示 `--`。
+- 惰性采样：查看悬浮提示也会调用 `NotifyQueried()`，因此即使没有勾选 PrimoCache 任务栏显示项，悬停查看仍能维持采样活动状态。
+- 格式化：`config::FormatSpeed` 与 `config::FormatPercent` 供任务栏显示项和悬浮提示共用，避免两处单位、小数位不一致。
+- 文档：`README.md` 已同步功能列表、惰性采样触发条件、悬浮提示内容和运行流程。
+- 约束：本次未改动 `PrimoCache.h/.cpp` 的采样、解析和线程模型；未编辑 `C:\tool\TrafficMonitor\config.ini`。
+
 ### 已知错误
 
 错误原文：

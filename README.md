@@ -42,6 +42,7 @@ TrafficMonitor 插件：把**实时上传/下载速度**和 **CPU 温度**显示
 | 声明式配置 | 显示项的名称、ID、标签、示例文本、取数回调、格式化回调全部集中在一张表里 |
 | PrimoCache 命中 / 未命中速度 | `命中: 11.8MB/s`、`未中: 345KB/s` |
 | PrimoCache 实时命中率 | `命中率: 99.9%`（最近 30 秒滚动窗口） |
+| PrimoCache 悬浮提示 | 鼠标提示显示总读取速度、未中率和状态；不可用时显示原因 |
 
 ---
 
@@ -148,7 +149,7 @@ TMPluginGetInstance
 
 - 间隔由 `PrimoCacheMonitor::kIntervalMs` 控制，**默认 5000 毫秒**。
 - 本机实测单次 `rxpcc perf` 调用约 **44 ms 墙钟 / 16 ms CPU**（含进程创建），即 5 秒间隔约 **0.9% 时间 / 0.3% CPU**；想更省可改成 `10000`。
-- **惰性采样**：只有这 3 个显示项中任意一个被主程序绘制时才采样；若连续 30 秒（`kIdleTimeoutMs`）没有任何一项被绘制，就**完全停止采样**（不再启动 `rxpcc`，零开销）。
+- **惰性采样**：这 3 个显示项中任意一个被主程序绘制，或鼠标提示正在查询时都会采样；若连续 30 秒（`kIdleTimeoutMs`）没有任何查询，就**完全停止采样**（不再启动 `rxpcc`，零开销）。
   恢复显示时会先采一次作为基准，约 5 秒后给出速率（避免把空闲期间累计的增长当成速率）。
 - 采样在**后台线程**执行，UI 线程只读取快照，不会阻塞主程序。
 
@@ -163,6 +164,24 @@ TMPluginGetInstance
 | 未提权或未安装 PrimoCache | 显示项不注册，主程序列表中看不到 |
 
 > 「命中」= 由缓存（L1 内存 + L2 SSD）服务的读取；「未命中」= 总读取 − 命中，即回落到物理磁盘的部分。若未启用一级缓存，命中全部来自二级缓存。
+
+### 悬浮提示
+
+插件通过 `ITMPlugin::GetTooltipInfo()` 提供 PrimoCache 专用鼠标提示。第一版采用去重模式，只补充任务栏未显示的信息：
+
+```text
+PrimoCache
+总读取    20.0 MB/s
+未中率    5.0%
+状态      正常
+```
+
+- `总读取` = `Δ(Total Read)/Δt`，此处只作为悬浮提示摘要，不新增任务栏显示项。
+- `未中率` = `100% - 命中率`；近期没有读取时显示 `--`。
+- 第一次采样尚未完成时显示 `等待采样`，不会显示默认 `0 B/s`。
+- 连续采样失败时显示 `采样失败`，不展示可能误导的旧数值。
+- PrimoCache 不可用时显示 `PrimoCacheMonitor::Reason()` 返回的具体原因。
+- 提示文本在 `DataRequired()` 中预先刷新；`GetTooltipInfo()` 只返回缓存字符串，并调用 `NotifyQueried()` 维持惰性采样。
 
 ## 工作原理
 
@@ -207,6 +226,7 @@ TMPluginGetInstance
   │                                                  │
   │ GetInfo(TMI_NAME/TMI_VERSION/...)  ─────────────▶│ 返回插件元信息
   │ GetItem(index)                     ─────────────▶│ 返回第 index 个显示项
+  │ GetTooltipInfo()                   ─────────────▶│ 返回 PrimoCache 缓存提示文本
   │                                                  │
   │ OnMonitorInfo(MonitorInfo)         ─────────────▶│ DynamicWindow::OnMonitorInfo
   │                                                  │   └─▶ 每个 DynamicData::SetData()
@@ -220,6 +240,8 @@ TMPluginGetInstance
 ```
 
 取数与格式化被拆成两个回调，好处是 `GetItemValueText()`（主程序可能高频调用）只做字符串返回，不会触发任何计算。
+
+悬浮提示同样只返回缓存文本；鼠标提示查询会调用 `PrimoCacheMonitor::NotifyQueried()`，但不会在 UI 线程执行 `rxpcc` 或阻塞采样。
 
 ### 滑动窗口算法
 

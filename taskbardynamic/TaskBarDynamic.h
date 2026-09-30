@@ -3,6 +3,7 @@
 #include "DynamicData.h"
 #include "PrimoCache.h"
 #include <memory>
+#include <string>
 #include <vector>
 
 // 任务栏动态显示插件：把主程序采集到的监控数据按滑动窗口归一化后显示在任务栏上
@@ -16,6 +17,7 @@ public:
 
 	IPluginItem* GetItem(int index) override;
 	const wchar_t* GetInfo(PluginInfoIndex index) override;
+	const wchar_t* GetTooltipInfo() override;
 
 	// 主程序定时回调：推进所有显示项的滑动窗口并刷新显示文本
 	void DataRequired() override;
@@ -24,6 +26,7 @@ public:
 
 private:
 	DynamicWindow();
+	void RefreshPrimoTooltip();
 
 	/// 按配置创建显示项，新增显示项时只需在 config 中追加一条
 	template <typename T>
@@ -38,6 +41,8 @@ private:
 	}
 
 	std::vector<std::unique_ptr<IPluginItem>> items_;
+	std::wstring primoTooltipText_;
+	bool primoAvailable_{ false };
 };
 
 #ifdef __cplusplus

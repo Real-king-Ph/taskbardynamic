@@ -24,7 +24,7 @@
   - 依据：Release URL `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.2`
   - 是否可能变化：是
 
-- [F-004] [P0] [已确认] 本机部署状态：`C:\tool\TrafficMonitor\plugins\taskbardynamic-x64.dll` 当前为 71,168 字节 / `03338161E4D25D39…`，与 v1.2.1 发布附件一致（即本机运行的是 v1.2.1 构建），文件时间 2026-09-23 16:23:16。
+- [F-004] [P0] [已确认] 本机部署状态（2026-09-24）：`C:\tool\TrafficMonitor\plugins\taskbardynamic-x64.dll` 已更新为 v1.2.2，71,168 字节 / `01FD0257419E29DBCD57CC87A4DA51D57CD8512B27AFEC11891742935443FEBF`；TrafficMonitor 已重启，运行进程只加载该文件。v1.2.1 原文件保留为 `taskbardynamic.v1.2.1-20260924-113018.dll.bak`。
   - 来源：本会话命令 `Get-ChildItem` + `Get-FileHash`（[S-010]）
   - 依据：哈希与 [F-003] 相同
   - 是否可能变化：是（用户可能再部署）
@@ -122,10 +122,16 @@
   - 依据：Debug/Release × x64/x86 重新构建 0 warning/0 error；Release x64 `/analyze` 0 告警；临时测试 15/15
   - 是否可能变化：是（提交与否取决于用户授权）
 
-- [F-024] [P0] [已完成] `v1.2.2` 已发布：插件 `TMI_VERSION` 与 README 为 `v1.2.2`；Debug/Release × x64/x86 全量构建 0 warning/0 error；Release x64 `/analyze` 0 告警；解析器 15/15；提交 `4e0c900` 已推送，GitHub Release 为 Latest，两个附件远程 SHA256 与本地一致。
+- [F-024] [P0] [已完成] `v1.2.2` 已发布并部署：插件 `TMI_VERSION` 与 README 为 `v1.2.2`；Debug/Release × x64/x86 全量构建 0 warning/0 error；Release x64 `/analyze` 0 告警；解析器 15/15；提交 `4e0c900` 已推送，GitHub Release 为 Latest，两个附件远程 SHA256 与本地一致。
   - 来源：用户当前发布指令 + 本轮构建/测试输出（[S-016]）
   - 依据：发布前固定流程 [C-006] 已执行且无问题
   - 是否可能变化：是（后续版本与部署可能更新）
+  - 部署补充：助手未编辑 `C:\tool\TrafficMonitor\config.ini`；TrafficMonitor 重启后由主程序自行刷新了该文件 mtime（2026-09-24 11:39:53，7,564 B）。
+
+- [F-025] [P1] [已完成] 2026-09-30 PrimoCache 悬浮提示已在工作区实现：`DynamicWindow` 覆盖 `ITMPlugin::GetTooltipInfo()`，由构造函数和 `DataRequired()` 刷新缓存文本，悬停查询时调用 `NotifyQueried()`；去重模式显示 `总读取`、`未中率`、`状态`，不可用时显示原因，采样未就绪/失败/近期无读取分别有明确文案。改动文件为 `TaskBarDynamic.h/.cpp`、`config.h/.cpp`，并同步更新 `README.md`；未修改 PrimoCache 采样核心与用户 `config.ini`。
+  - 来源：用户当前指令 + 源码差异、四配置 MSBuild、Release x64 `/analyze`、DLL 字符串检查和 `git diff --check`（[S-018]）
+  - 依据：四个构建配置均 0 warning / 0 error；Release x64 `/analyze` 0 告警；Release x64 DLL 中确认存在 PrimoCache tooltip 中文文案
+  - 是否可能变化：是；当前已提交到本地，未推送、未发布、未部署，且已部署的 `v1.2.2` 不含本改动
 ## 8. 当前进展与当前状态
 
 - 最后一次完成的步骤：用户恢复工作区后，依次完成并提交：
@@ -138,7 +144,7 @@
   - 本轮源码四个构建配置与 Release x64 静态分析全部通过——[F-022]。
   - 同项目下小上下文会话可用于继续工作——[F-017]。
 
-- 当前正在进行的步骤：`ParseCounters` 修复与验证已完成，等待用户决定是否提交；HANDOFF 已同步为未提交状态。
+- 当前正在进行的步骤：v1.2.2 部署已完成，主程序已重启并确认只加载新插件；HANDOFF 为部署后状态。
 
 - 当前阻塞点：
   1) B4-b 命中率最小样本门槛未拍板（[Q-003]）。
@@ -153,8 +159,8 @@
   - 在重复 `Path`/`PATH` 的当前 shell 直接跑 MSBuild → `MSB6001`（[R-011]）。
 
 - 下一步最安全动作：
-  1) 用户决定是否提交 `ParseCounters` 修复及本轮 HANDOFF 更新。
-  2) 用户若继续优化，从 [Q-011] 选择窗口/进程/启动加固项；未获明确同意不提交、不发布、不部署。
+  1) 用户若继续优化，从 [Q-011] 选择窗口/进程/启动加固项。
+  2) 当前不需要重复部署 v1.2.2；若要再次替换 DLL，先退出 TrafficMonitor 并保留回滚文件。
   3) 不要碰 `C:\tool\TrafficMonitor\config.ini`。
 
 - 来源：以上综合 [S-002]、[S-008]、[S-010]、[S-013]、[S-014]

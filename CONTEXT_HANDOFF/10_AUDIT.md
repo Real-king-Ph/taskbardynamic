@@ -86,4 +86,20 @@
 - 候选附件：x64 71,168 B / `01FD0257…`；x86 66,048 B / `E87B3AD6…`。
 - 发布结果：提交 `4e0c900` 已推送；GitHub Release `v1.2.2` 为 Latest，目标提交一致；Release URL 为 `https://github.com/Real-king-Ph/taskbardynamic/releases/tag/v1.2.2`。
 - 附件复核：x64 71,168 B / `01FD0257…`、x86 66,048 B / `E87B3AD6…`，从 GitHub 下载后 SHA256 与本地构建完全一致。
-- 部署状态：未部署到本机 TrafficMonitor；未修改用户 `config.ini`，未执行 UAC 操作。
+- 发布阶段部署状态：当时尚未部署到本机 TrafficMonitor；发布流程本身未执行 UAC。后续部署见 16.6。
+
+## 16.6 v1.2.2 本机部署审计（2026-09-24）
+
+- 授权：用户明确要求「部署一下新的DLL」。
+- 部署：先复制 v1.2.1 DLL 到 `taskbardynamic.v1.2.1-20260924-113018.dll.bak`；通过管理员操作替换插件文件；重启 TrafficMonitor。
+- 运行态：进程 PID 5976 只加载 `C:\tool\TrafficMonitor\plugins\taskbardynamic-x64.dll`；该文件 SHA256 = `01FD0257419E29DBCD57CC87A4DA51D57CD8512B27AFEC11891742935443FEBF`。
+- 清理：重复加载的临时旧文件 `taskbardynamic-x64.old-20260924-113442.dll` 已删除；正式 v1.2.1 备份保留。
+- 约束：助手未编辑 `C:\tool\TrafficMonitor\config.ini`；TrafficMonitor 重启后由主程序自行刷新了该文件 mtime（2026-09-24 11:39:53，7,564 B）。部署操作经用户明确授权并触发 UAC。
+
+## 16.7 PrimoCache 悬浮提示审计（2026-09-30）
+
+- 范围：`TaskBarDynamic.h/.cpp`、`config.h/.cpp`、`README.md`；未改动 `PrimoCache.h/.cpp` 的采样核心。
+- 实现：新增 `ITMPlugin::GetTooltipInfo()`；去重模式显示总读取、未中率、状态；不可用/等待/失败/无读取有独立文案；悬停查询调用 `NotifyQueried()` 维持惰性采样。
+- 验证：Debug/Release × x64/x86 构建均 0 warning / 0 error；Release x64 `/analyze` 0 告警；`git diff --check` 通过；Release x64 DLL 中确认存在新增中文提示字符串。
+- 状态：已提交到本地；未推送、未发布、未部署；未编辑用户 `C:\tool\TrafficMonitor\config.ini`。
+- 完整性：目标、决策、事实、技术细节、代码片段、时间线来源、下一步和索引均已同步。
