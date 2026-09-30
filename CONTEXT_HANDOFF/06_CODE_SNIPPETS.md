@@ -150,7 +150,7 @@ void SetPrimoSpeed(std::wstring& text, unsigned long long value) {
 ```
 
 - 片段 ID：P-010
-- 来源：2026-09-24 工作区修改（尚未提交）
+- 来源：随 `v1.2.2` 发布（提交 `4e0c900`）
 - 用途：`rxpcc` 字段缺失、非法值或溢出时必须让本次采样失败，不能静默解析为 0
 - 原文（要点）：
 ```cpp

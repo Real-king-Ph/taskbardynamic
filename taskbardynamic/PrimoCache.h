@@ -12,8 +12,8 @@
 
 /// PrimoCache 采样参数
 constexpr int kSampleIntervalMs = 5000;     ///< 采样间隔（毫秒）：单次 rxpcc 调用实测约 44ms 墙钟 / 16ms CPU
-constexpr int kHitRateWindowMs = 30000;     ///< 命中率统计窗口（毫秒）：取窗口内的累计比值，避免单次 I/O 导致 0%/100% 跳变
-constexpr std::size_t kHitRateSamples = static_cast<std::size_t>(kHitRateWindowMs / kSampleIntervalMs);   ///< 窗口内的采样数
+constexpr int kHitRateWindowMs = 30000;     ///< 命中率设计窗口（毫秒）：目标是约 30 秒，当前实现按成功采样次数近似
+constexpr std::size_t kHitRateSamples = static_cast<std::size_t>(kHitRateWindowMs / kSampleIntervalMs);   ///< 当前实现保留的成功采样样本数
 static_assert(kSampleIntervalMs > 0, "kSampleIntervalMs 必须大于 0");
 static_assert(kHitRateSamples >= 1, "kHitRateWindowMs 必须不小于一个采样间隔，否则命中率窗口为空（会导致取模 0）");
 
@@ -56,13 +56,14 @@ struct PrimoCacheSnapshot {
 	std::uint64_t hit_speed{ 0 };            ///< 命中速度      Δ(Cached Read)/Δt
 	std::uint64_t miss_speed{ 0 };           ///< 未命中速度    Δ(Total Read - Cached Read)/Δt
 	bool          hit_rate_valid{ false };   ///< 区间内有读取时才有意义
-	double        hit_rate_percent{ 0.0 };   ///< 实时命中率    Δ(Cached Read)/Δ(Total Read)
+	double        hit_rate_percent{ 0.0 };   ///< 近期命中率    Δ(Cached Read)/Δ(Total Read)
 };
 
 /**
  * @brief 命中率滚动窗口（方案 A）
  *
- * 命中率取「窗口内累计命中 / 窗口内累计读取」，而不是单个采样区间的比值，
+ * 命中率取「最近 kHitRateSamples 次成功采样的累计命中 / 累计读取」，而不是单个采样区间的比值；
+ * 当前实现按成功采样次数滚动，不按真实时间戳淘汰，因此实际覆盖时间可能超过 kHitRateWindowMs。
  * 这样在读取量很少的区间也不会出现 0% / 100% 的跳变。
  */
 class HitRateWindow

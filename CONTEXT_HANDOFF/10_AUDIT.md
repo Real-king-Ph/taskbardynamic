@@ -75,7 +75,7 @@
 - 范围：`taskbardynamic/PrimoCache.cpp` 的 `ParseFirstNumber` / `ParseCounters`。
 - 修复：单值解析返回明确成功标志并检查 `uint64_t` 溢出；两个累计字段都必须存在且解析成功；多卷累加检查溢出；异常输出直接令采样失败。
 - 验证：15 个临时定向测试全部通过（正常值、千位分隔符、缺字段、非法值、前导逗号、空白、零值、最大值、单值/累加溢出）；Debug/Release × x64/x86 全量重建 0 warning / 0 error；Release x64 `/analyze` 0 告警。
-- 状态：代码和 HANDOFF 修改当前未提交；未部署、未发布，未触碰用户 `config.ini`。
+- 状态（2026-09-30 补记）：已随 `v1.2.2` 发布（提交 `4e0c900`）；发布前未触碰用户 `config.ini`。
 
 ## 16.5 v1.2.2 发布审计（2026-09-24）
 
@@ -103,3 +103,10 @@
 - 验证：Debug/Release × x64/x86 构建均 0 warning / 0 error；Release x64 `/analyze` 0 告警；`git diff --check` 通过；Release x64 DLL 中确认存在新增中文提示字符串。
 - 状态：已提交到本地 `07d6698`；未推送、未发布、未部署；未编辑用户 `C:\tool\TrafficMonitor\config.ini`。
 - 完整性：目标、决策、事实、技术细节、代码片段、时间线来源、下一步和索引均已同步。
+
+## 16.8 文档一致性修复审计（2026-09-30）
+
+- 范围：`README.md`、`PrimoCache.h/.cpp` 注释、`config.cpp` 注释及 `CONTEXT_HANDOFF` 中的过期状态描述。
+- 修正：把命中率从“严格 30 秒窗口”改为“最近 6 次成功采样（设计目标约 30 秒）”；把解析器加固从“尚未提交”改为“已随 v1.2.2 / 4e0c900 发布”；更新当前本地构建、已部署 DLL 与未发布悬浮提示的区分；更新当前 `config.ini` 只读核对结果。
+- 验证：README/HANDOFF 文本检索与 `git diff --check`；未修改 `C:\tool\TrafficMonitor\config.ini`。
+- 状态：已提交到本地；未推送、发布或部署。

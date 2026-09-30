@@ -12,7 +12,7 @@ namespace config {
 		constexpr double kMega = kKilo * 1024.0;
 		constexpr double kGiga = kMega * 1024.0;
 
-		/// 把数值部分统一格式化成 4 个字符：999 / 99.9 / 9.99
+		/// 把数值部分按量级格式化：999 / 99.9 / 9.99；极大整数会超过 4 个字符
 		std::wstring FormatValue(double value) {
 			wchar_t buffer[32]{};
 
@@ -189,7 +189,7 @@ namespace config {
 
 
 	DynamicInfo<float> primo_hit_rate_info_ = {
-		L"primocache hit rate",         // 实时命中率（最近一个采样区间）
+		L"primocache hit rate",         // 近期命中率（最近 6 次成功采样的累计比值）
 		L"PC_HIT_RATE",
 		L"命中率:",
 		L"99.9%",

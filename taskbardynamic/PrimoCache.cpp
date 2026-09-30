@@ -628,7 +628,7 @@ void PrimoCacheMonitor::WorkerMainImpl()
 			snapshot.hit_speed = ToRate(deltaHit, seconds);
 			snapshot.miss_speed = ToRate(deltaMiss, seconds);
 
-			// 命中率：取最近 kHitRateWindowMs（30 秒）内的累计比值，避免小样本跳变
+			// 命中率：取最近 kHitRateSamples 次成功采样的累计比值，避免小样本跳变
 			hit_rate_window_.Push(deltaRead, deltaHit);
 			double percent = 0.0;
 			if (hit_rate_window_.GetPercent(percent)) {
