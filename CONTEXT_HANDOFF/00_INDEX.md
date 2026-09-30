@@ -9,7 +9,7 @@
 ## 快速状态
 
 - 主目标：[G-001] 维护并持续完善 Traffic Monitor 插件 `taskbardynamic`。
-- 当前交接目标：[G-007] 新增 PrimoCache 专用悬浮提示；当前已实现、验证并部署到本机开发环境，已提交到本地 `master`（`07d6698`），尚未推送或发布。
+- 当前交接目标：[G-008] 发布包含 PrimoCache 悬浮提示的 `v1.2.3`；版本号、README 和发布准备正在进行。
 - 最后已发布版本：`v1.2.2`（提交 `4e0c900`，GitHub Release Latest）；发布附件已下载并逐字节校验。
 - 当前部署版本：PrimoCache 悬浮提示开发构建（`TMI_VERSION` 仍为 `v1.2.2`），已部署到 `C:\tool\TrafficMonitor\plugins\taskbardynamic-x64.dll`；当前运行进程 PID 113940，文件 SHA256 为 `5A570D18…`。
 - 当前新增能力：PrimoCache 悬浮提示（去重模式）；已实现总读取速度、未中率、状态和不可用原因，已提交到本地 `07d6698` 并部署到本机，尚未推送或发布。

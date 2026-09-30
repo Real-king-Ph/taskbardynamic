@@ -115,3 +115,8 @@
   - 回滚：`C:\tool\TrafficMonitor\plugins\taskbardynamic.v1.2.2-20260930-170809.dll.bak`。
   - 状态：已完成；未修改 `config.ini`，未推送、未发布。
   - 来源：用户当前部署指令 + 部署命令输出（[S-021]）
+
+- [T-019] [P0] [进行中] 发布 `v1.2.3`
+  - 目标：更新版本号和 README，完成四配置构建与 `/analyze`，提交推送，创建标签和 GitHub Release，并上传 x64/x86 DLL。
+  - 验收：RELEASE 附件 SHA256 与本地构建一致；`v1.2.2` 保持不变。
+  - 来源：用户当前发布指令（[S-022]）
